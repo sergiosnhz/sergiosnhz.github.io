@@ -2118,7 +2118,7 @@ function collectNewPatientData() {
         if (checkbox && checkbox.checked) {
             injuredZones.push(zone === '1' ? 'I' : zone === '2' ? 'II' : zone === '3' ? 'III' : zone === '4' ? 'IV' : 'V');
         }
-    });
+    };
     
     return {
         identification: {
