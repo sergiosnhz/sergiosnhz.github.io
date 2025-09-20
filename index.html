@@ -5,30 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Evaluación - Tendones Flexores</title>
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Firebase SDK - Versión compatibilidad v9 -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    
-    <script>
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AZaSyDwTNxMSny7QtJNL6sYbEqbUwqRPITRSzE",
-            authDomain: "lesion-de-flexores-un.firebaseapp.com",
-            projectId: "lesion-de-flexores-un",
-            storageBucket: "lesion-de-flexores-un.appspot.com",
-            messagingSenderId: "401340786156",
-            appId: "1:401340786156:web:0a9a704001e4b8875d0cc9",
-            measurementId: "G-523XECBC8H"
-        };
 
-        // Inicialización de Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        console.log('🔥 Firebase inicializado correctamente');
+    <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDwINxMSny7QtJNL6sYbEqbUwqRPITRSzE",
+        authDomain: "lesion-de-flexores-un.firebaseapp.com",
+        projectId: "lesion-de-flexores-un",
+        storageBucket: "lesion-de-flexores-un.firebasestorage.app",
+        messagingSenderId: "401340786156",
+        appId: "1:401340786156:web:0a9a704001e4b8875d0cc9",
+        measurementId: "G-523XCEBC8H"
+    };
+
+
+    // Inicialización de Firebase (ya está bien)
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    console.log("Firebase inicializado correctamente");
     </script>
-    
+
+
     <style>
         /* Firebase status indicator */
         .firebase-status {
@@ -46,22 +47,22 @@
             transition: all 0.3s ease;
             border: 2px solid rgba(255,255,255,0.2);
         }
-        
+
         .firebase-status.error {
             background: #f44336;
             animation: pulse 2s infinite;
         }
-        
+
         .firebase-status.connecting {
             background: #ff9800;
         }
-        
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
-        
+
         /* Enhanced form styling for better visibility */
         .form-control {
             padding: 12px 16px !important;
@@ -70,13 +71,13 @@
             font-size: 14px !important;
             transition: all 0.3s ease !important;
         }
-        
+
         .form-control:focus {
             border-color: #2c5aa0 !important;
             outline: none !important;
             box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1) !important;
         }
-        
+
         .btn {
             padding: 12px 24px !important;
             border-radius: 8px !important;
@@ -84,54 +85,54 @@
             border: 2px solid transparent !important;
             transition: all 0.3s ease !important;
         }
-        
+
         .btn--primary {
             background: #2c5aa0 !important;
             color: white !important;
             border-color: #2c5aa0 !important;
         }
-        
+
         .btn--primary:hover {
             background: #1e4080 !important;
             border-color: #1e4080 !important;
             transform: translateY(-1px) !important;
             box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3) !important;
         }
-        
+
         .btn--secondary {
             background: #6c757d !important;
             color: white !important;
             border-color: #6c757d !important;
         }
-        
+
         .btn--secondary:hover {
             background: #5a6268 !important;
             border-color: #5a6268 !important;
         }
-        
+
         .btn--outline {
             background: transparent !important;
             color: #2c5aa0 !important;
             border-color: #2c5aa0 !important;
         }
-        
+
         .btn--outline:hover {
             background: #2c5aa0 !important;
             color: white !important;
         }
-        
+
         .btn--info {
             background: #17a2b8 !important;
             color: white !important;
             border-color: #17a2b8 !important;
         }
-        
+
         .btn--success {
             background: #28a745 !important;
             color: white !important;
             border-color: #28a745 !important;
         }
-        
+
         /* Cards with better borders */
         .card {
             border: 2px solid #e9ecef !important;
@@ -139,18 +140,18 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
             margin-bottom: 24px !important;
         }
-        
+
         .card-header {
             background: #f8f9fa !important;
             border-bottom: 2px solid #e9ecef !important;
             border-radius: 10px 10px 0 0 !important;
             padding: 18px 24px !important;
         }
-        
+
         .card-body {
             padding: 24px !important;
         }
-        
+
         /* Dashboard improvements */
         .dashboard-stats {
             display: grid !important;
@@ -158,22 +159,22 @@
             gap: 20px !important;
             margin: 24px 0 !important;
         }
-        
+
         .stat-card {
             text-align: center !important;
             transition: transform 0.3s ease !important;
         }
-        
+
         .stat-card:hover {
             transform: translateY(-2px) !important;
         }
-        
+
         .stat-number {
             font-size: 2.5rem !important;
             font-weight: bold !important;
             color: #2c5aa0 !important;
         }
-        
+
         /* Action buttons grid */
         .action-buttons {
             display: grid !important;
@@ -181,18 +182,18 @@
             gap: 16px !important;
             margin: 30px 0 !important;
         }
-        
+
         /* Schedule card improvements */
         .schedule-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
         }
-        
+
         .postop-timeline {
             display: grid !important;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
             gap: 20px !important;
         }
-        
+
         .postop-item {
             background: white !important;
             border: 2px solid #dee2e6 !important;
@@ -200,30 +201,30 @@
             padding: 20px !important;
             transition: all 0.3s ease !important;
         }
-        
+
         .postop-item:hover {
             border-color: #2c5aa0 !important;
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 12px rgba(44, 90, 160, 0.1) !important;
         }
-        
+
         .postop-week {
             color: #2c5aa0 !important;
             margin-bottom: 12px !important;
             border-bottom: 2px solid #e9ecef !important;
             padding-bottom: 8px !important;
         }
-        
+
         .postop-activities ul {
             margin: 0 !important;
             padding-left: 20px !important;
         }
-        
+
         .postop-activities li {
             margin-bottom: 8px !important;
             line-height: 1.5 !important;
         }
-        
+
         /* Loading overlay */
         .loading-overlay {
             position: fixed;
@@ -238,12 +239,12 @@
             z-index: 9999;
             transition: opacity 0.5s ease;
         }
-        
+
         .loading-overlay.hidden {
             opacity: 0;
             pointer-events: none;
         }
-        
+
         .loading-spinner {
             width: 50px;
             height: 50px;
@@ -252,26 +253,26 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .action-buttons {
                 grid-template-columns: 1fr !important;
             }
-            
+
             .dashboard-stats {
                 grid-template-columns: 1fr !important;
             }
-            
+
             .postop-timeline {
                 grid-template-columns: 1fr !important;
             }
-            
+
             .firebase-status {
                 top: 10px !important;
                 right: 10px !important;
@@ -286,12 +287,12 @@
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
     </div>
-    
+
     <!-- Firebase status indicator -->
     <div id="firebaseStatus" class="firebase-status connecting">Conectando a Firebase...</div>
-    
+
     <div class="container">
-        
+
         <!-- Pantalla de Acceso Inicial -->
         <section id="accessScreen" class="section active">
             <div class="access-screen">
@@ -300,7 +301,7 @@
                     <p>Seguimiento de pacientes con lesiones en zonas I, II, III, IV y V</p>
                     <p><small>🔥 <strong>Datos guardados en la nube con Firebase</strong></small></p>
                 </div>
-                
+
                 <div class="access-buttons">
                     <button class="btn btn--primary" onclick="showSection('patientSection')">
                         Acceso Paciente
@@ -350,7 +351,7 @@
                 <h2>Información para Pacientes</h2>
                 <button class="btn btn--outline" onclick="showSection('accessScreen')">Volver</button>
             </div>
-            
+
             <!-- Protocolos de Ejercicios -->
             <div class="card">
                 <div class="card-header">
@@ -376,7 +377,7 @@
                 <div class="card-body">
                     <div class="care-section">
                         <h4>Cuidados de Férula y Cicatriz</h4>
-                        
+
                         <div class="care-subsection">
                             <h5>Cuidado de la Férula</h5>
                             <ul class="care-list">
@@ -387,7 +388,7 @@
                                 <li>No mojarse durante el baño</li>
                             </ul>
                         </div>
-                        
+
                         <div class="care-subsection">
                             <h5>Cuidado de la Cicatriz</h5>
                             <ul class="care-list">
@@ -398,7 +399,7 @@
                                 <li>Evitar exposición a productos químicos</li>
                             </ul>
                         </div>
-                        
+
                         <div class="care-subsection">
                             <h5>Signos de Alerta</h5>
                             <ul class="care-list">
@@ -419,7 +420,7 @@
             <div id="doctorInfo" class="doctor-info">
                 <!-- Se llena dinámicamente -->
             </div>
-            
+
             <header class="app-header">
                 <h1>Sistema de Evaluación - Tendones Flexores</h1>
                 <p>Panel de Control Médico</p>
@@ -433,14 +434,14 @@
                         <div class="stat-number" id="totalPacientes">0</div>
                     </div>
                 </div>
-                
+
                 <div class="card stat-card">
                     <div class="card-body">
                         <h3>Controles Pendientes</h3>
                         <div class="stat-number" id="controlesPendientes">0</div>
                     </div>
                 </div>
-                
+
                 <div class="card stat-card">
                     <div class="card-body">
                         <h3>Pacientes con Controles Incompletos</h3>
@@ -486,7 +487,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="postop-item">
                                 <div class="postop-week">
                                     <h4>3-4 Semanas</h4>
@@ -498,7 +499,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="postop-item">
                                 <div class="postop-week">
                                     <h4>6 Semanas</h4>
@@ -510,7 +511,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            
+
                             <div class="postop-item">
                                 <div class="postop-week">
                                     <h4>12 Semanas</h4>
@@ -552,7 +553,7 @@
                                 <label class="form-label">Fecha de Ingreso</label>
                                 <input type="date" id="admissionDate" class="form-control" required onchange="calculateDaysToSurgery()">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="form-label">Tiempo de Evolución hasta el ingreso (Horas)</label>
                                 <input type="number" id="evolutionTime" class="form-control" min="0" required>
@@ -899,7 +900,7 @@
                         </div>
 
                         <h4>BMRC Scale - Motor <span class="tooltip" title="Escala M0-M5. M0:Sin contracción, M1:Contracción sin movimiento, M2:Movimiento sin gravedad, M3:Contra gravedad sin resistencia, M4:Con resistencia parcial, M5:Fuerza normal">ℹ️</span></h4>
-                        
+
                         <div class="bmrc-motor-section">
                             <h5>FDS por Dedo</h5>
                             <div class="form-grid">
@@ -1485,7 +1486,7 @@
 
     <!-- JavaScript Firebase integrado DEBE ir al final -->
     <script src="app-firebase-integrado.js"></script>
-    
+
     <script>
         // Firebase Status Management
         function updateFirebaseStatus(connected, message = '') {
@@ -1498,11 +1499,11 @@
                 status.className = 'firebase-status error';
             }
         }
-        
+
         // Firebase Connection Test
         window.addEventListener('load', () => {
             const loadingOverlay = document.getElementById('loadingOverlay');
-            
+
             setTimeout(() => {
                 try {
                     if (typeof firebase !== 'undefined' && typeof db !== 'undefined') {
@@ -1524,12 +1525,12 @@
                     updateFirebaseStatus(false, error.message);
                     console.error('❌ Error inicializando Firebase:', error);
                 }
-                
+
                 // Hide loading overlay
                 loadingOverlay.classList.add('hidden');
             }, 1500);
         });
-        
+
         // Global error handler
         window.addEventListener('error', (event) => {
             if (event.message.includes('firebase')) {

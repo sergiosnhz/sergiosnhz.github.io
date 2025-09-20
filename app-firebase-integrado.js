@@ -1,3 +1,5 @@
+npm install firebase
+
 // Application State
 let currentSection = 'accessScreen';
 let currentUser = null;
@@ -16,7 +18,7 @@ let currentEditPatientId = null;
 // Application Data with corrected BMRC scales
 const appData = {
     accessPassword: "0911",
-    
+
     bmrc_motor_scale: [
         {value: 0, code: "M0", description: "Sin contracción muscular"},
         {value: 1, code: "M1", description: "Contracción muscular que no resulta en movimiento articular"},
@@ -25,7 +27,7 @@ const appData = {
         {value: 4, code: "M4", description: "Contracción muscular que supera cierta resistencia"},
         {value: 5, code: "M5", description: "Fuerza muscular normal"}
     ],
-    
+
     bmrc_sensory_scale: [
         {value: 0, code: "S0", description: "Sin sensación"},
         {value: 1, code: "S1", description: "Sensación de dolor (profundo)"},
@@ -35,7 +37,7 @@ const appData = {
         {value: 3.5, code: "S3+", description: "Como S3, discriminación estática 7-15 mm"},
         {value: 4, code: "S4", description: "Como S3+, discriminación estática < 7 mm"}
     ],
-    
+
     affiliation_types: ["CONTRIBUTIVO", "SUBSIDIADO", "BENEFICIARIO", "AFILIADO"],
     etiology_types: ["CORTOPUNZANTE", "CORTOCONTUNDENTE", "APLASTAMIENTO", "EXPLOSIVO", "CIZALLANTE", "COMBINADO"],
     trauma_mechanisms: ["ABIERTO", "CERRADO"],
@@ -43,7 +45,7 @@ const appData = {
     repair_types: ["CENTRAL", "EPITENDINOSA", "MIXTA"],
     protocols: ["KLEINERT", "DURAN", "ACTIVE MOTION"],
     follow_up_weeks: [1, 3, 6, 12],
-    
+
     quickdash_questions: [
         "Abrir un frasco apretado o nuevo",
         "Hacer trabajos caseros pesados (limpiar paredes y pisos)",
@@ -57,7 +59,7 @@ const appData = {
         "¿Cuánta dificultad tuvo para dormir?",
         "Me siento menos capaz, menos seguro or menos útil"
     ],
-    
+
     // TAM normal values by finger
     tam_normal_values: {
         1: 160, // Dedo 1 (Pulgar)
@@ -66,7 +68,7 @@ const appData = {
         4: 260, // Dedo 4 (Anular)
         5: 260  // Dedo 5 (Meñique)
     },
-    
+
     // Updated finger names using numbers
     fingers: [
         { number: 1, name: "Dedo 1", joints: ["MCF", "IFP"] }, // Pulgar (no IFD)
@@ -75,7 +77,7 @@ const appData = {
         { number: 4, name: "Dedo 4", joints: ["MCF", "IFP", "IFD"] },
         { number: 5, name: "Dedo 5", joints: ["MCF", "IFP", "IFD"] }
     ],
-    
+
     // MODIFICADO: Eliminado "Déficit_Ext"
     jointTypes: ["MCF", "IFP", "IFD"]
 };
@@ -336,7 +338,7 @@ function handleDoctorLogin(event) {
         console.log('Usuario autenticado:', currentUser);
         updateDoctorInfo();
         showAlert('Sesión iniciada correctamente - Cargando datos...', 'success');
-        
+
         // Cargar datos de Firestore al hacer login
         loadPatients().then(() => {
             showSection('dashboard');
@@ -356,11 +358,11 @@ async function deleteAllPatientsFromFirestore() {
         showAlert('Eliminando todos los datos de Firestore...', 'info');
         const snapshot = await db.collection('patients').get();
         const batch = db.batch();
-        
+
         snapshot.docs.forEach(doc => {
             batch.delete(doc.ref);
         });
-        
+
         await batch.commit();
         patients = [];
         updateDashboard();
@@ -489,7 +491,7 @@ function startTimer() {
     timerInterval = setInterval(() => {
         currentExerciseTimer.remaining--;
         updateTimerDisplay();
-        
+
         if (currentExerciseTimer.remaining <= 0) {
             finishTimer();
         }
@@ -559,9 +561,9 @@ function loadClinicalHistoriesList() {
 
     const html = patients.map(patient => {
         const followUpCount = patient.followups ? patient.followups.length : 0;
-        const lastControl = patient.followups && patient.followups.length > 0 ? 
+        const lastControl = patient.followups && patient.followups.length > 0 ?
             patient.followups[patient.followups.length - 1] : null;
-        
+
         return `
             <div class="clinical-history-item" onclick="showIndividualClinicalHistory('${patient.id}')">
                 <div class="clinical-history-header">
@@ -590,11 +592,11 @@ function loadClinicalHistoriesList() {
 function searchClinicalHistories() {
     const searchInput = document.getElementById('clinicalHistorySearch');
     const container = document.getElementById('clinicalHistoriesList');
-    
+
     if (!searchInput || !container) return;
-    
+
     const searchTerm = searchInput.value.toLowerCase().trim();
-    
+
     if (!searchTerm) {
         loadClinicalHistoriesList();
         return;
@@ -613,9 +615,9 @@ function searchClinicalHistories() {
     // Similar rendering logic as loadClinicalHistoriesList but with filtered patients
     const html = filteredPatients.map(patient => {
         const followUpCount = patient.followups ? patient.followups.length : 0;
-        const lastControl = patient.followups && patient.followups.length > 0 ? 
+        const lastControl = patient.followups && patient.followups.length > 0 ?
             patient.followups[patient.followups.length - 1] : null;
-        
+
         return `
             <div class="clinical-history-item" onclick="showIndividualClinicalHistory('${patient.id}')">
                 <div class="clinical-history-header">
@@ -853,7 +855,7 @@ function loadEditablePatientsList() {
 
     const html = patients.map(patient => {
         const followUpCount = patient.followups ? patient.followups.length : 0;
-        
+
         return `
             <div class="edit-patient-item">
                 <div class="edit-patient-header">
@@ -879,11 +881,11 @@ function loadEditablePatientsList() {
 function searchPatientsForEdit() {
     const searchInput = document.getElementById('editPatientSearch');
     const container = document.getElementById('editPatientsList');
-    
+
     if (!searchInput || !container) return;
-    
+
     const searchTerm = searchInput.value.toLowerCase().trim();
-    
+
     if (!searchTerm) {
         loadEditablePatientsList();
         return;
@@ -901,7 +903,7 @@ function searchPatientsForEdit() {
 
     const html = filteredPatients.map(patient => {
         const followUpCount = patient.followups ? patient.followups.length : 0;
-        
+
         return `
             <div class="edit-patient-item">
                 <div class="edit-patient-header">
@@ -948,7 +950,7 @@ function editPatientIdentification(patientId) {
                 <label class="form-label">Fecha de Ingreso</label>
                 <input type="date" id="editAdmissionDate" class="form-control" value="${identification.admission_date}" required>
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Tiempo de Evolución (Horas)</label>
                 <input type="number" id="editEvolutionTime" class="form-control" value="${identification.evolution_time_hours}" required>
@@ -1124,7 +1126,7 @@ function editPatientInitialData(patientId) {
     title.textContent = `Editar Datos Iniciales - ${patient.identification.fullname}`;
 
     const initialData = patient.initial_data || {};
-    
+
     // Generate checkbox values for zones
     const zoneChecked = (zone) => {
         return initialData.injured_zones && initialData.injured_zones.includes(zone) ? 'checked' : '';
@@ -1290,7 +1292,7 @@ function editPatientFollowUps(patientId) {
     title.textContent = `Editar Controles - ${patient.identification.fullname}`;
 
     const followUps = patient.followups || [];
-    
+
     let html = `
         <div class="edit-followups-container">
             <h4>Controles de Seguimiento Registrados</h4>
@@ -1319,7 +1321,7 @@ function editPatientFollowUps(patientId) {
             `;
         });
     }
-    
+
     html += `
         </div>
         <div class="add-followup-section">
@@ -1357,7 +1359,7 @@ function closeEditModal() {
 // Función para manejar el envío del formulario de edición
 function handleEditSubmit(event) {
     event.preventDefault();
-    
+
     if (!currentEditPatientId || !editingSection) {
         showAlert('Error: No hay datos de edición válidos', 'error');
         return;
@@ -1427,7 +1429,7 @@ async function saveIdentificationEdit(patient) {
 
         // Actualizar en Firebase
         await savePatient(patient);
-        
+
         showAlert('Información de identificación actualizada exitosamente en la nube', 'success');
         closeEditModal();
         loadEditablePatientsList(); // Refresh the list
@@ -1507,7 +1509,7 @@ async function saveInitialDataEdit(patient) {
 
         // Actualizar en Firebase
         await savePatient(patient);
-        
+
         showAlert('Datos iniciales actualizados exitosamente en la nube', 'success');
         closeEditModal();
         loadEditablePatientsList(); // Refresh the list
@@ -1521,20 +1523,20 @@ async function saveInitialDataEdit(patient) {
 function searchPatients() {
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('searchResults');
-    
+
     if (!searchInput || !resultsContainer) {
         console.log('Elementos de búsqueda no encontrados');
         return;
     }
 
     const searchTerm = searchInput.value.toLowerCase().trim();
-    
+
     if (!searchTerm) {
         resultsContainer.innerHTML = '<div class="no-results"><p>Ingrese un término de búsqueda</p></div>';
         return;
     }
 
-    const results = patients.filter(patient => 
+    const results = patients.filter(patient =>
         patient.identification.fullname.toLowerCase().includes(searchTerm) ||
         patient.identification.document_number.includes(searchTerm)
     );
@@ -1555,7 +1557,7 @@ function searchPatientsForFollowUp() {
         return;
     }
 
-    const results = patients.filter(patient => 
+    const results = patients.filter(patient =>
         patient.identification.fullname.toLowerCase().includes(searchTerm) ||
         patient.identification.document_number.includes(searchTerm)
     );
@@ -1601,7 +1603,7 @@ function displayFollowUpSearchResults(results, container) {
 function selectPatientForFollowUp(patientId) {
     selectedPatientId = patientId;
     const patient = patients.find(p => p.id === patientId);
-    
+
     if (patient) {
         const nameElement = document.getElementById('selectedPatientName');
         const formElement = document.getElementById('followUpForm');
@@ -1710,15 +1712,15 @@ function generateGoniometryGrid() {
 
     appData.fingers.forEach(finger => {
         html += `<div class="gonio-label">${finger.name}</div>`;
-        
+
         // MCF joint
         const mcfInputId = `gonio${finger.number}MCF`;
         html += `<input type="number" id="${mcfInputId}" class="gonio-input" min="0" max="180" placeholder="0" onchange="calculateTAMByFingerAndStrickland()">`;
-        
-        // IFP joint  
+
+        // IFP joint
         const ifpInputId = `gonio${finger.number}IFP`;
         html += `<input type="number" id="${ifpInputId}" class="gonio-input" min="0" max="180" placeholder="0" onchange="calculateTAMByFingerAndStrickland()">`;
-        
+
         // IFD joint - Skip for thumb (finger 1)
         if (finger.number === 1) {
             html += `<div class="gonio-label" style="background: #f0f0f0; color: #999;">N/A</div>`; // Empty cell for thumb IFD
@@ -1901,7 +1903,7 @@ function calculateQuickDash() {
 function toggleIncompleteReason() {
     const completeTherapies = document.getElementById('completeTherapies').value;
     const reasonGroup = document.getElementById('incompleteReasonGroup');
-    
+
     if (completeTherapies === 'false') {
         reasonGroup.style.display = 'block';
     } else {
@@ -1913,7 +1915,7 @@ function toggleIncompleteReason() {
 function toggleReturnTimeField() {
     const returnToPrevious = document.getElementById('returnToPreviousOccupation').value;
     const timeGroup = document.getElementById('returnTimeGroup');
-    
+
     if (returnToPrevious === 'true') {
         timeGroup.style.display = 'block';
     } else {
@@ -1983,7 +1985,7 @@ function collectNewPatientData() {
             companion_name: document.getElementById('companionName').value,
             companion_relation: document.getElementById('companionRelation').value,
             companion_phone: document.getElementById('companionPhone').value,
-            
+
             // NUEVOS CAMPOS AGREGADOS
             estrato: document.getElementById('estrato').value,
             comorbilidades_actuales: document.getElementById('comorbilidadesActuales').value
@@ -1991,7 +1993,7 @@ function collectNewPatientData() {
         initial_data: {
             // NUEVO CAMPO: Miembro lesionado
             miembro_lesionado: document.getElementById('miembroLesionado').value,
-            
+
             compromised_flexor_tendon: compromisedTendons,
             injured_zones: injuredZones, // CORRECTED Multiple zones support
             object: document.getElementById('object').value,
@@ -2007,7 +2009,7 @@ function collectNewPatientData() {
             tenolysis: document.getElementById('tenolysis').value,
             days_to_surgery: parseInt(document.getElementById('daysToSurgery').value) || 0,
             surgery_date: document.getElementById('surgeryDate').value,
-            
+
             bmrc_sensory: {
                 median: parseFloat(document.getElementById('bmrcSensoryMedian').value) || 0,
                 ulnar: parseFloat(document.getElementById('bmrcSensoryUlnar').value) || 0,
@@ -2074,11 +2076,11 @@ function collectFollowUpData() {
         return_to_previous_occupation: document.getElementById('returnToPreviousOccupation').value === 'true',
         occupation_change: document.getElementById('occupationChange').value,
         return_time_months: parseInt(document.getElementById('returnTimeMonths').value) || 0,
-        
+
         // NUEVOS CAMPOS AGREGADOS
         complicaciones: document.getElementById('complicaciones').value,
         reintervencion_quirurgica: document.getElementById('reintervencionQuirurgica').value,
-        
+
         bmrc_sensory: {
             median: parseFloat(document.getElementById('followUpBmrcSensoryMedian').value) || 0,
             ulnar: parseFloat(document.getElementById('followUpBmrcSensoryUlnar').value) || 0,
@@ -2107,7 +2109,7 @@ function collectFollowUpData() {
 // MODIFICADO: CSV export con todas las variables incluidas
 function generateCSVData() {
     const headers = [
-        'ID Paciente', 'Nombre Completo', 'Documento', 'Edad', 'Sexo', 'Nivel Educativo', 
+        'ID Paciente', 'Nombre Completo', 'Documento', 'Edad', 'Sexo', 'Nivel Educativo',
         'Ocupación', 'País Origen', 'Ciudad Nacimiento', 'Departamento', 'Ciudad Residencia',
         'Lateralidad', 'Estrato', 'Comorbilidades Actuales', 'Miembro Lesionado',
         'Fecha Ingreso', 'Zona(s) Lesionada(s)', 'Objeto', 'Etiología', 'Mecanismo Trauma',
@@ -2123,11 +2125,11 @@ function generateCSVData() {
     // Add follow-up headers with new fields
     appData.follow_up_weeks.forEach(week => {
         headers.push(
-            `Control ${week}sem - Fecha`, 
-            `Control ${week}sem - Protocolo`, 
-            `Control ${week}sem - Strickland`, 
-            `Control ${week}sem - Quick DASH`, 
-            `Control ${week}sem - Discapacidad`, 
+            `Control ${week}sem - Fecha`,
+            `Control ${week}sem - Protocolo`,
+            `Control ${week}sem - Strickland`,
+            `Control ${week}sem - Quick DASH`,
+            `Control ${week}sem - Discapacidad`,
             `Control ${week}sem - Retorno Laboral`,
             `Control ${week}sem - Complicaciones`,
             `Control ${week}sem - Reintervención`,
@@ -2168,9 +2170,9 @@ function generateCSVData() {
         ];
 
         // Add latest TAM by finger data
-        const latestFollowUp = patient.followups && patient.followups.length > 0 ? 
+        const latestFollowUp = patient.followups && patient.followups.length > 0 ?
             patient.followups[patient.followups.length - 1] : null;
-        
+
         appData.fingers.forEach(finger => {
             const tamData = latestFollowUp?.tam_by_finger?.[`finger${finger.number}`];
             row.push(
@@ -2246,7 +2248,7 @@ function generateCompleteHistoryTemplate(patient) {
         return item ? item.description : 'No evaluado';
     };
 
-    const latestFollowUp = patient.followups && patient.followups.length > 0 ? 
+    const latestFollowUp = patient.followups && patient.followups.length > 0 ?
         patient.followups[patient.followups.length - 1] : null;
 
     return `
@@ -2385,7 +2387,7 @@ function fallbackCopyTextToClipboard(text) {
     textArea.style.left = '0';
     textArea.style.position = 'fixed';
     textArea.style.opacity = '0';
-    
+
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
@@ -2405,11 +2407,11 @@ function fallbackCopyTextToClipboard(text) {
 function updateDashboard() {
     // Actualizar estadísticas
     document.getElementById('totalPacientes').textContent = patients.length;
-    
+
     // Calcular controles pendientes (simplificado)
     let controlesPendientes = 0;
     let pacientesIncompletos = 0;
-    
+
     patients.forEach(patient => {
         if (!patient.followups || patient.followups.length < 4) {
             controlesPendientes++;
@@ -2418,7 +2420,7 @@ function updateDashboard() {
             pacientesIncompletos++;
         }
     });
-    
+
     document.getElementById('controlesPendientes').textContent = controlesPendientes;
     document.getElementById('pacientesIncompletos').textContent = pacientesIncompletos;
 }
@@ -2453,7 +2455,7 @@ async function handleNewPatientSubmit(event) {
     try {
         // Guardar en Firebase
         await savePatient(patientData);
-        
+
         // Agregar a la lista local
         patients.push(patientData);
         updateDashboard();
@@ -2537,7 +2539,7 @@ async function handleFollowUpSubmit(event) {
 
 function validateNewPatientForm() {
     const requiredFields = ['admissionDate', 'evolutionTime', 'fullName', 'documentType', 'documentNumber', 'age', 'sex', 'educationLevel', 'occupation', 'originCountry', 'birthCity', 'address', 'department', 'city', 'phone', 'eps', 'affiliationType', 'laterality', 'object', 'etiology', 'traumaMechanism', 'estrato', 'miembroLesionado'];
-    
+
     for (const fieldId of requiredFields) {
         const field = document.getElementById(fieldId);
         if (!field || !field.value.trim()) {
@@ -2553,7 +2555,7 @@ function validateNewPatientForm() {
         const checkbox = document.getElementById(`zone${zone}`);
         return checkbox && checkbox.checked;
     });
-    
+
     if (!hasZone) {
         showAlert('Debe seleccionar al menos una zona lesionada', 'error');
         return false;
@@ -2591,19 +2593,19 @@ function generatePatientId() {
 function formatDate(dateString) {
     if (!dateString) return 'No registrada';
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 }
 
 function formatDateTime(dateString) {
     if (!dateString) return 'No registrada';
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'short', 
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
@@ -2612,7 +2614,7 @@ function formatDateTime(dateString) {
 
 function showAlert(message, type = 'info', duration = 5000) {
     console.log(`Alert (${type}):`, message);
-    
+
     // Remove existing alerts
     const existingAlerts = document.querySelectorAll('.alert');
     existingAlerts.forEach(alert => alert.remove());
@@ -2680,24 +2682,24 @@ window.handleEditSubmit = handleEditSubmit;
 // Event listeners setup
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Aplicación iniciando con Firebase...');
-    
+
     try {
         // Verificar que Firebase esté disponible
         if (typeof firebase === 'undefined') {
             showAlert('Error: Firebase no está disponible. Verifique la configuración.', 'error');
             return;
         }
-        
+
         if (typeof db === 'undefined') {
             showAlert('Error: Firestore no está configurado. Verifique la configuración.', 'error');
             return;
         }
-        
+
         console.log('Firebase conectado correctamente');
-        
+
         // Initialize UI
         initializeDateFields();
-        
+
         // Setup form listeners
         const newPatientForm = document.getElementById('newPatientForm');
         if (newPatientForm) {
@@ -2718,10 +2720,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (editForm) {
             editForm.addEventListener('submit', handleEditSubmit);
         }
-        
+
         // Show access screen
         showSection('accessScreen');
-        
+
         console.log('Aplicación inicializada correctamente con Firebase');
     } catch (error) {
         console.error('Error inicializando aplicación:', error);
