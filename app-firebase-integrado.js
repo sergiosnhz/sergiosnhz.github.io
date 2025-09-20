@@ -1,4 +1,3 @@
-npm install firebase
 
 // Application State
 let currentSection = 'accessScreen';
