@@ -2,14 +2,33 @@
 let currentSection = 'accessScreen';
 let currentUser = null;
 let selectedPatientId = null;
-let patients = []; // CORRECCIÓN: Inicializar sin datos de ejemplo
+let patients = [];
 let currentExerciseTimer = null;
 let timerInterval = null;
 let currentProtocol = 'KLEINERT';
+let editingSection = null;
+let pendingEditData = null;
 
-// Application Data
+// Application Data with corrected BMRC scales
 const appData = {
     accessPassword: "0911",
+    bmrc_motor_scale: [
+        {value: 0, code: "M0", description: "Sin contracción muscular"},
+        {value: 1, code: "M1", description: "Contracción muscular que no resulta en movimiento articular"},
+        {value: 2, code: "M2", description: "Contracción muscular con movimiento excluyendo gravedad"},
+        {value: 3, code: "M3", description: "Contracción muscular efectiva contra gravedad pero no supera resistencia"},
+        {value: 4, code: "M4", description: "Contracción muscular que supera cierta resistencia"},
+        {value: 5, code: "M5", description: "Fuerza muscular normal"}
+    ],
+    bmrc_sensory_scale: [
+        {value: 0, code: "S0", description: "Sin sensación"},
+        {value: 1, code: "S1", description: "Sensación de dolor (profundo)"},
+        {value: 2, code: "S2", description: "Sensación de dolor y tacto"},
+        {value: 2.5, code: "S2+", description: "Sensación de dolor y tacto con cierta sobreacción"},
+        {value: 3, code: "S3", description: "Como S2+, sin sobreacción y discriminación estática 15-20 mm"},
+        {value: 3.5, code: "S3+", description: "Como S3, discriminación estática 7-15 mm"},
+        {value: 4, code: "S4", description: "Como S3+, discriminación estática < 7 mm"}
+    ],
     affiliation_types: ["CONTRIBUTIVO", "SUBSIDIADO", "BENEFICIARIO", "AFILIADO"],
     etiology_types: ["CORTOPUNZANTE", "CORTOCONTUNDENTE", "APLASTAMIENTO", "EXPLOSIVO", "CIZALLANTE", "COMBINADO"],
     trauma_mechanisms: ["ABIERTO", "CERRADO"],
@@ -28,199 +47,331 @@ const appData = {
         "¿Hasta qué punto se sintió limitado en su trabajo?",
         "Hormigueo en brazo, hombro o mano",
         "¿Cuánta dificultad tuvo para dormir?",
-        "Me siento menos capaz, menos seguro o menos útil"
+        "Me siento menos capaz, menos seguro or menos útil"
     ],
+    // TAM normal values by finger
     tam_normal_values: {
-        thumb: 160,
-        index: 260,
-        middle: 260,
-        ring: 260,
-        little: 260
+        1: 160,  // Dedo 1 (Pulgar)
+        2: 260,  // Dedo 2 (Índice)
+        3: 260,  // Dedo 3 (Medio)
+        4: 260,  // Dedo 4 (Anular)
+        5: 260   // Dedo 5 (Meñique)
     },
-    // PROTOCOLO KLEINERT CORREGIDO Y DETALLADO
+    // COMPLETE EXERCISE PROTOCOLS
     exercise_protocols: {
         KLEINERT: {
+            name: "PROTOCOLO DE KLEINERT",
             objective: "Lograr movilidad precoz controlada del tendón reparado sin comprometer la sutura",
-            mechanism: "Se coloca un arnés en la muñeca o antebrazo, con gomas elásticas fijadas a las uñas, que mantienen los dedos en flexión pasiva; el paciente realiza extensión activa hasta la férula dorsal",
-            advantages: ["Reduce adherencias", "Estimula cicatrización intrínseca", "Mejora el rango final de movimiento"],
-            disadvantages: ["Requiere supervisión estricta", "Riesgo de ruptura si hay falta de adherencia al protocolo", "Contracturas en flexión si se prolonga"],
-            phase_1: {
-                timeframe: "0 - 3 días (Postoperatorio inmediato)",
-                interventions: [
-                    "Inmovilización con férula dorsal protectora",
-                    "Muñeca 30° flexión, MCF 70° flexión, IP en extensión", 
-                    "Colocación de bandas elásticas desde uñas hasta el arnés"
-                ],
-                observations: "Mantiene reparación protegida, se inicia movilidad temprana bajo supervisión",
-                exercises: [
-                    {
-                        name: "Reposo Protegido",
-                        description: "Mantener la férula dorsal en posición correcta con bandas elásticas colocadas",
-                        duration: 0,
-                        repetitions: "N/A",
-                        frequency: "24 horas"
-                    }
-                ]
-            },
-            phase_2: {
-                timeframe: "Día 3 - Semana 4", 
-                interventions: [
-                    "Flexión pasiva con bandas elásticas",
-                    "Extensión activa de los dedos hasta la férula", 
-                    "10 repeticiones cada hora, guiadas"
-                ],
-                observations: "Los elásticos limitan la extensión para proteger la sutura",
-                exercises: [
-                    {
-                        name: "Flexión Pasiva con Elásticos",
-                        description: "Permita que las bandas elásticas flexionen suavemente los dedos hacia la palma",
-                        duration: 30,
-                        repetitions: 10,
-                        frequency: "Cada hora despierto"
-                    },
-                    {
-                        name: "Extensión Activa Controlada", 
-                        description: "Extienda los dedos activamente hasta el límite de la férula dorsal, las gomas controlan el movimiento",
-                        duration: 45,
-                        repetitions: 10, 
-                        frequency: "Cada hora despierto"
-                    }
-                ]
-            },
-            phase_3: {
-                timeframe: "Semana 4 - Semana 6",
-                interventions: [
-                    "Se retiran gradualmente los elásticos",
-                    "Se inicia flexión activa asistida dentro de rango suave"
-                ],
-                observations: "Evitar fuerza o resistencia. Progresar según control del dolor y cicatriz",
-                exercises: [
-                    {
-                        name: "Flexión Activa Asistida",
-                        description: "Doble los dedos suavemente con ayuda de la otra mano, sin forzar el movimiento",
-                        duration: 60,
-                        repetitions: 15,
-                        frequency: "3 veces al día"
-                    },
-                    {
-                        name: "Deslizamiento Tendinoso Suave",
-                        description: "Movimientos lentos de flexión-extensión dentro del rango cómodo",
-                        duration: 45,
-                        repetitions: 10,
-                        frequency: "2 veces al día"
-                    }
-                ]
-            },
-            phase_4: {
-                timeframe: "Semana 6 - Semana 8",
-                interventions: [
-                    "Flexión activa completa",
-                    "Ejercicios de puño suave, rodillos o esponja",
-                    "Extensión activa completa"
-                ],
-                observations: "Aumentar progresivamente el rango de movimiento",
-                exercises: [
-                    {
-                        name: "Flexión Activa Completa",
-                        description: "Cierre el puño completamente de forma activa, sin resistencia externa",
-                        duration: 60,
-                        repetitions: 20,
-                        frequency: "3 veces al día"
-                    },
-                    {
-                        name: "Ejercicios con Esponja",
-                        description: "Apriete suavemente una esponja o pelota blanda",
-                        duration: 120,
-                        repetitions: 15,
-                        frequency: "2 veces al día"
-                    }
-                ]
-            },
-            phase_5: {
-                timeframe: "Semana 8 - Semana 12",
-                interventions: [
-                    "Ejercicios de fortalecimiento progresivo",
-                    "Trabajo funcional (pinza, prensión)"
-                ],
-                observations: "Riesgo de ruptura disminuye, se busca función práctica",
-                exercises: [
-                    {
-                        name: "Fortalecimiento Progresivo",
-                        description: "Ejercicios con resistencia gradual usando bandas elásticas o pesas ligeras",
-                        duration: 180,
-                        repetitions: 12,
-                        frequency: "2 veces al día"
-                    },
-                    {
-                        name: "Actividades Funcionales",
-                        description: "Practicar actividades diarias como escribir, abotonarse, usar cubiertos",
-                        duration: 300,
-                        repetitions: "Según actividad",
-                        frequency: "Varias veces al día"
-                    }
-                ]
-            },
-            phase_6: {
-                timeframe: "> 12 semanas",
-                interventions: [
-                    "Retorno progresivo a actividades laborales y deportivas"
-                ],
-                observations: "El tendón alcanza mayor resistencia tensil",
-                exercises: [
-                    {
-                        name: "Actividades Laborales",
-                        description: "Retorno gradual a las actividades laborales específicas según ocupación",
-                        duration: 0,
-                        repetitions: "Según actividad",
-                        frequency: "Progresivo"
-                    }
-                ]
+            mechanism: "Se coloca un arnés en la muñeca o antebrazo, con gomas elásticas fijadas a las uñas",
+            phases: {
+                phase_1: {
+                    name: "0-3 días (Postoperatorio inmediato)",
+                    objective: "Protección inicial y control del dolor",
+                    exercises: [
+                        {
+                            name: "Reposo Protegido",
+                            description: "Mantener férula dorsal con bandas elásticas las 24 horas",
+                            duration: 0,
+                            repetitions: 1,
+                            frequency: "Continuo"
+                        },
+                        {
+                            name: "Control del Edema",
+                            description: "Elevación de la mano y aplicación de hielo según tolerancia",
+                            duration: 15,
+                            repetitions: 1,
+                            frequency: "Cada 2 horas"
+                        }
+                    ]
+                },
+                phase_2: {
+                    name: "Día 3 - Semana 4",
+                    objective: "Inicio de movimiento pasivo controlado",
+                    exercises: [
+                        {
+                            name: "Flexión Pasiva",
+                            description: "Permita que las bandas elásticas flexionen los dedos suavemente hasta la palma",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "Cada hora despierto"
+                        },
+                        {
+                            name: "Extensión Activa",
+                            description: "Extienda dedos activamente hasta límite de férula dorsal",
+                            duration: 45,
+                            repetitions: 15,
+                            frequency: "Cada hora despierto"
+                        },
+                        {
+                            name: "Movimiento de Muñeca",
+                            description: "Flexión y extensión suave de muñeca dentro de férula",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "3 veces al día"
+                        }
+                    ]
+                },
+                phase_3: {
+                    name: "Semana 4 - 6",
+                    objective: "Progresión a movimiento activo controlado",
+                    exercises: [
+                        {
+                            name: "Flexión Activa Suave",
+                            description: "Doble los dedos suavemente hacia la palma sin fuerza ni resistencia",
+                            duration: 60,
+                            repetitions: 15,
+                            frequency: "3 veces al día"
+                        },
+                        {
+                            name: "Extensión Activa Completa",
+                            description: "Extensión completa de dedos sin férula por períodos cortos",
+                            duration: 45,
+                            repetitions: 20,
+                            frequency: "4 veces al día"
+                        },
+                        {
+                            name: "Trabajo de Pinza",
+                            description: "Ejercicios de pinza suave con objetos blandos",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "2 veces al día"
+                        }
+                    ]
+                },
+                phase_4: {
+                    name: "Semana 6 - 12",
+                    objective: "Fortalecimiento progresivo y retorno funcional",
+                    exercises: [
+                        {
+                            name: "Fortalecimiento Gradual",
+                            description: "Ejercicios de resistencia progresiva con banda elástica",
+                            duration: 120,
+                            repetitions: 20,
+                            frequency: "2 veces al día"
+                        },
+                        {
+                            name: "Actividades Funcionales",
+                            description: "Tareas específicas de la vida diaria y ocupación del paciente",
+                            duration: 180,
+                            repetitions: 1,
+                            frequency: "Diario"
+                        },
+                        {
+                            name: "Ejercicios de Destreza",
+                            description: "Manipulación de objetos pequeños y coordinación fina",
+                            duration: 90,
+                            repetitions: 15,
+                            frequency: "2 veces al día"
+                        }
+                    ]
+                }
             }
         },
         DURAN: {
-            phase_1: {
-                timeframe: "Semana 1-2",
-                exercises: [
-                    {
-                        name: "Movimiento Pasivo PIP",
-                        description: "Mueva pasivamente la articulación PIP dentro del rango de la férula",
-                        duration: 30,
-                        repetitions: 10,
-                        frequency: "Cada 2 horas"
-                    },
-                    {
-                        name: "Movimiento Pasivo DIP",
-                        description: "Mueva pasivamente la articulación DIP suavemente",
-                        duration: 30,
-                        repetitions: 10,
-                        frequency: "Cada 2 horas"
-                    }
-                ]
+            name: "PROTOCOLO DE DURAN",
+            objective: "Movilización pasiva precoz para prevenir adherencias sin tensión en la sutura",
+            mechanism: "Movimientos pasivos controlados de las articulaciones IFP e IFD",
+            phases: {
+                phase_1: {
+                    name: "0-3 días (Postoperatorio inmediato)",
+                    objective: "Protección y control inicial",
+                    exercises: [
+                        {
+                            name: "Reposo con Férula",
+                            description: "Férula dorsal en posición funcional con muñeca en 20° flexión",
+                            duration: 0,
+                            repetitions: 1,
+                            frequency: "Continuo"
+                        }
+                    ]
+                },
+                phase_2: {
+                    name: "Día 3 - Semana 4",
+                    objective: "Movilización pasiva controlada",
+                    exercises: [
+                        {
+                            name: "Movimiento Pasivo PIP",
+                            description: "Mueva pasivamente la articulación PIP de 0° a 90° suavemente",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "Cada 2 horas"
+                        },
+                        {
+                            name: "Movimiento Pasivo DIP",
+                            description: "Mueva pasivamente la articulación DIP manteniendo PIP extendida",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "Cada 2 horas"
+                        },
+                        {
+                            name: "Flexión Compuesta Pasiva",
+                            description: "Flexión pasiva simultánea de MCF, PIP y DIP",
+                            duration: 45,
+                            repetitions: 8,
+                            frequency: "3 veces al día"
+                        }
+                    ]
+                },
+                phase_3: {
+                    name: "Semana 4 - 6",
+                    objective: "Transición a movimiento activo",
+                    exercises: [
+                        {
+                            name: "Flexión Activa Asistida",
+                            description: "Flexión activa con asistencia manual mínima",
+                            duration: 60,
+                            repetitions: 12,
+                            frequency: "4 veces al día"
+                        },
+                        {
+                            name: "Extensión Activa",
+                            description: "Extensión activa completa de todos los dedos",
+                            duration: 45,
+                            repetitions: 15,
+                            frequency: "4 veces al día"
+                        }
+                    ]
+                },
+                phase_4: {
+                    name: "Semana 6 - 12",
+                    objective: "Fortalecimiento y función",
+                    exercises: [
+                        {
+                            name: "Fortalecimiento Resistido",
+                            description: "Ejercicios contra resistencia manual y con implementos",
+                            duration: 90,
+                            repetitions: 20,
+                            frequency: "2 veces al día"
+                        },
+                        {
+                            name: "Reeducación Funcional",
+                            description: "Actividades específicas de trabajo y vida diaria",
+                            duration: 120,
+                            repetitions: 1,
+                            frequency: "Diario"
+                        }
+                    ]
+                }
             }
         },
-        "ACTIVE_MOTION": {
-            phase_1: {
-                timeframe: "Semana 1-2",
-                exercises: [
-                    {
-                        name: "Flexión Activa Controlada",
-                        description: "Flexión activa del dedo hasta la base del dedo índice",
-                        duration: 60,
-                        repetitions: 10,
-                        frequency: "3-5 veces al día"
-                    }
-                ]
+        ACTIVE_MOTION: {
+            name: "PROTOCOLO DE MOVILIZACIÓN ACTIVA",
+            objective: "Movilización activa temprana para optimizar el deslizamiento tendinoso",
+            mechanism: "Movimiento activo controlado desde el postoperatorio inmediato",
+            phases: {
+                phase_1: {
+                    name: "0-3 días (Postoperatorio inmediato)",
+                    objective: "Inicio de movilización activa controlada",
+                    exercises: [
+                        {
+                            name: "Flexión Activa Limitada",
+                            description: "Flexión activa hasta la base del dedo medio únicamente",
+                            duration: 30,
+                            repetitions: 5,
+                            frequency: "Cada 2 horas"
+                        },
+                        {
+                            name: "Extensión Pasiva",
+                            description: "Extensión pasiva completa con férula",
+                            duration: 30,
+                            repetitions: 10,
+                            frequency: "Cada 2 horas"
+                        }
+                    ]
+                },
+                phase_2: {
+                    name: "Día 3 - Semana 2",
+                    objective: "Progresión del rango de movimiento activo",
+                    exercises: [
+                        {
+                            name: "Flexión Activa Progresiva",
+                            description: "Flexión activa progresiva hasta palma distal",
+                            duration: 45,
+                            repetitions: 10,
+                            frequency: "Cada hora despierto"
+                        },
+                        {
+                            name: "Extensión Activa",
+                            description: "Extensión activa completa contra gravedad",
+                            duration: 45,
+                            repetitions: 15,
+                            frequency: "Cada hora despierto"
+                        },
+                        {
+                            name: "Ejercicio de Lugar y Mantén",
+                            description: "Flexión activa con mantenimiento de la posición por 5 segundos",
+                            duration: 60,
+                            repetitions: 8,
+                            frequency: "3 veces al día"
+                        }
+                    ]
+                },
+                phase_3: {
+                    name: "Semana 2 - 6",
+                    objective: "Maximización del rango de movimiento",
+                    exercises: [
+                        {
+                            name: "Flexión Activa Completa",
+                            description: "Flexión activa completa a puño cerrado",
+                            duration: 60,
+                            repetitions: 15,
+                            frequency: "4 veces al día"
+                        },
+                        {
+                            name: "Ejercicios de Diferenciación",
+                            description: "Movimiento diferencial de FDS y FDP",
+                            duration: 90,
+                            repetitions: 12,
+                            frequency: "3 veces al día"
+                        },
+                        {
+                            name: "Trabajo de Pinza",
+                            description: "Ejercicios de pinza lateral y pulpar",
+                            duration: 45,
+                            repetitions: 20,
+                            frequency: "3 veces al día"
+                        }
+                    ]
+                },
+                phase_4: {
+                    name: "Semana 6 - 12",
+                    objective: "Fortalecimiento y retorno funcional",
+                    exercises: [
+                        {
+                            name: "Fortalecimiento Intensivo",
+                            description: "Ejercicios de resistencia progresiva alta intensidad",
+                            duration: 120,
+                            repetitions: 25,
+                            frequency: "2 veces al día"
+                        },
+                        {
+                            name: "Simulación Ocupacional",
+                            description: "Tareas específicas del trabajo del paciente",
+                            duration: 180,
+                            repetitions: 1,
+                            frequency: "2 veces al día"
+                        },
+                        {
+                            name: "Condicionamiento Físico",
+                            description: "Ejercicios generales de fuerza y resistencia de la extremidad",
+                            duration: 150,
+                            repetitions: 1,
+                            frequency: "Diario"
+                        }
+                    ]
+                }
             }
         }
     },
+    // Updated finger names using numbers
     fingers: [
-        { number: 1, name: "Pulgar" },
-        { number: 2, name: "Índice" },
-        { number: 3, name: "Medio" },
-        { number: 4, name: "Anular" },
-        { number: 5, name: "Meñique" }
+        { number: 1, name: "Dedo 1", joints: ["MCF", "IFP"] },  // Pulgar (no IFD)
+        { number: 2, name: "Dedo 2", joints: ["MCF", "IFP", "IFD"] },
+        { number: 3, name: "Dedo 3", joints: ["MCF", "IFP", "IFD"] },
+        { number: 4, name: "Dedo 4", joints: ["MCF", "IFP", "IFD"] },
+        { number: 5, name: "Dedo 5", joints: ["MCF", "IFP", "IFD"] }
     ],
-    jointTypes: ["MCF", "IFP", "IFD", "Déficit Ext"]
+    jointTypes: ["MCF", "IFP", "IFD", "Déficit_Ext"]
 };
 
 // Data persistence functions (using memory since localStorage not available)
@@ -229,7 +380,7 @@ let memoryStorage = {};
 function savePatients() {
     try {
         memoryStorage['flexorTendonPatients'] = JSON.stringify(patients);
-        console.log('Pacientes guardados en memoria');
+        console.log('Pacientes guardados en memoria:', patients.length);
     } catch (error) {
         console.error('Error guardando pacientes:', error);
         showAlert('Error guardando datos', 'error');
@@ -249,29 +400,39 @@ function loadPatients() {
     }
 }
 
-// Navigation functions
+// FIXED Navigation functions with proper error handling
 function showSection(sectionId) {
-    console.log('Navegando a sección:', sectionId);
-    
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-    
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
-        currentSection = sectionId;
-        console.log('Sección activada:', sectionId);
+    try {
+        console.log('Navegando a sección:', sectionId);
         
-        // Initialize section-specific content
-        if (sectionId === 'patientSection') {
-            showProtocol(currentProtocol);
-        } else if (sectionId === 'dashboard') {
-            updateDashboard();
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            currentSection = sectionId;
+            console.log('Sección activada:', sectionId);
+            
+            // Initialize section-specific content
+            if (sectionId === 'patientSection') {
+                showProtocol(currentProtocol);
+            } else if (sectionId === 'dashboard') {
+                updateDashboard();
+            } else if (sectionId === 'clinicalHistories') {
+                loadClinicalHistoriesList();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        } else {
+            console.error('Sección no encontrada:', sectionId);
         }
-    } else {
-        console.error('Sección no encontrada:', sectionId);
+    } catch (error) {
+        console.error('Error en showSection:', error);
+        showAlert('Error navegando a la sección', 'error');
     }
 }
 
@@ -280,34 +441,44 @@ function handleDoctorLogin(event) {
     event.preventDefault();
     console.log('Procesando login de médico...');
     
-    const doctorId = document.getElementById('doctorId').value.trim();
-    const doctorName = document.getElementById('doctorName').value.trim();
-    const password = document.getElementById('doctorPassword').value.trim();
-    
-    console.log('Datos de login:', { doctorId, doctorName, password: '***' });
-    
-    if (!doctorId || !doctorName || !password) {
-        showAlert('Todos los campos son requeridos', 'error');
+    try {
+        const doctorId = document.getElementById('doctorId').value;
+        const doctorName = document.getElementById('doctorName').value;
+        const password = document.getElementById('doctorPassword').value;
+        
+        console.log('Datos de login:', { doctorId, doctorName, password });
+        
+        if (password !== appData.accessPassword) {
+            showAlert('Contraseña incorrecta. Use: ' + appData.accessPassword, 'error');
+            return false;
+        }
+        
+        if (!doctorId || !doctorName) {
+            showAlert('Todos los campos son requeridos', 'error');
+            return false;
+        }
+        
+        currentUser = {
+            id: doctorId,
+            name: doctorName,
+            loginTime: new Date().toISOString()
+        };
+        
+        console.log('Usuario autenticado:', currentUser);
+        updateDoctorInfo();
+        showAlert('Sesión iniciada correctamente - Redirigiendo al dashboard...', 'success');
+        
+        // Small delay to show success message
+        setTimeout(() => {
+            showSection('dashboard');
+        }, 1000);
+        
+        return false;
+    } catch (error) {
+        console.error('Error en login:', error);
+        showAlert('Error en el proceso de login', 'error');
         return false;
     }
-    
-    if (password !== appData.accessPassword) {
-        showAlert('Contraseña incorrecta', 'error');
-        return false;
-    }
-    
-    currentUser = {
-        id: doctorId,
-        name: doctorName,
-        loginTime: new Date().toISOString()
-    };
-    
-    console.log('Usuario autenticado:', currentUser);
-    updateDoctorInfo();
-    showSection('dashboard');
-    showAlert('Sesión iniciada correctamente', 'success');
-    
-    return false;
 }
 
 function updateDoctorInfo() {
@@ -321,6 +492,7 @@ function updateDoctorInfo() {
 
 function logout() {
     currentUser = null;
+    selectedPatientId = null;
     const loginForm = document.getElementById('doctorLoginForm');
     if (loginForm) {
         loginForm.reset();
@@ -329,130 +501,74 @@ function logout() {
     showAlert('Sesión cerrada correctamente', 'info');
 }
 
-// Patient section functions
+// CORRECTED Patient section functions with COMPLETE protocols
 function showProtocol(protocolName) {
-    currentProtocol = protocolName;
-    console.log('Mostrando protocolo:', protocolName);
-    
-    // Update tab buttons
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent === protocolName) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // Display protocol content
-    const content = document.getElementById('protocolContent');
-    if (!content) return;
-    
-    const protocol = appData.exercise_protocols[protocolName];
-    if (!protocol) return;
-    
-    let html = '';
-    
-    if (protocolName === 'KLEINERT') {
-        // Mostrar información detallada del protocolo Kleinert
-        html += `
-            <div class="protocol-info">
-                <div style="background-color: var(--color-bg-1); padding: var(--space-16); border-radius: var(--radius-base); margin-bottom: var(--space-24);">
-                    <h4><strong>PROTOCOLO DE KLEINERT</strong></h4>
-                    <p><strong>Objetivo:</strong> ${protocol.objective}</p>
-                    <p><strong>Mecanismo:</strong> ${protocol.mechanism}</p>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); margin-top: var(--space-16);">
-                        <div>
-                            <p><strong>Ventajas:</strong></p>
-                            <ul style="margin: 0; padding-left: var(--space-20);">
-                                ${protocol.advantages.map(advantage => `<li>${advantage}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div>
-                            <p><strong>Desventajas:</strong></p>
-                            <ul style="margin: 0; padding-left: var(--space-20);">
-                                ${protocol.disadvantages.map(disadvantage => `<li>${disadvantage}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <h4 style="color: var(--color-primary); text-align: center; margin-bottom: var(--space-24);">FASES DEL TRATAMIENTO</h4>
+    try {
+        currentProtocol = protocolName;
+        console.log('Mostrando protocolo:', protocolName);
+        
+        // Update tab buttons
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent === protocolName) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Display protocol content
+        const content = document.getElementById('protocolContent');
+        if (!content) return;
+        
+        const protocol = appData.exercise_protocols[protocolName];
+        if (!protocol) return;
+        
+        let html = `
+            <div class="protocol-header">
+                <h3>${protocol.name}</h3>
+                <p><strong>Objetivo:</strong> ${protocol.objective}</p>
+                <p><strong>Mecanismo:</strong> ${protocol.mechanism}</p>
             </div>
         `;
         
-        // Mostrar todas las fases del protocolo Kleinert
-        Object.keys(protocol).forEach(phaseKey => {
-            if (phaseKey.startsWith('phase_')) {
-                const phase = protocol[phaseKey];
-                html += `
-                    <div class="protocol-week" style="border: 1px solid var(--color-border); border-radius: var(--radius-base); padding: var(--space-16); margin-bottom: var(--space-20);">
-                        <h4 style="color: var(--color-primary); margin-bottom: var(--space-12);">${phase.timeframe}</h4>
-                        
-                        <div style="background-color: var(--color-bg-2); padding: var(--space-12); border-radius: var(--radius-sm); margin-bottom: var(--space-16);">
-                            <h5 style="margin-bottom: var(--space-8);">Intervenciones:</h5>
-                            <ul style="margin: 0; padding-left: var(--space-20);">
-                                ${phase.interventions.map(intervention => `<li>${intervention}</li>`).join('')}
-                            </ul>
-                        </div>
-                        
-                        <div style="background-color: var(--color-bg-3); padding: var(--space-12); border-radius: var(--radius-sm); margin-bottom: var(--space-16);">
-                            <h5 style="margin-bottom: var(--space-8);">Observaciones:</h5>
-                            <p style="margin: 0;">${phase.observations}</p>
-                        </div>
-                        
-                        <div class="exercise-list">
-                            <h5 style="color: var(--color-primary); margin-bottom: var(--space-12);">Ejercicios:</h5>
-                            ${phase.exercises.map(exercise => `
-                                <div class="exercise-item">
-                                    <div class="exercise-header">
-                                        <span class="exercise-name">${exercise.name}</span>
-                                        ${exercise.duration > 0 ? `<button class="btn btn--sm btn--primary" onclick="startExercise('${exercise.name}', '${exercise.description}', ${exercise.duration})">Iniciar Ejercicio</button>` : ''}
-                                    </div>
-                                    <div class="exercise-description">${exercise.description}</div>
-                                    <div class="exercise-details">
-                                        ${exercise.duration > 0 ? `<span><strong>Duración:</strong> ${exercise.duration}s</span>` : ''}
-                                        <span><strong>Repeticiones:</strong> ${exercise.repetitions}</span>
-                                        <span><strong>Frecuencia:</strong> ${exercise.frequency}</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
+        // Generate phases with complete information
+        Object.keys(protocol.phases).forEach(phaseKey => {
+            const phase = protocol.phases[phaseKey];
+            html += `
+                <div class="protocol-phase">
+                    <div class="protocol-phase-header">
+                        <h4 class="protocol-phase-title">${phase.name}</h4>
+                        <p class="protocol-phase-objective">${phase.objective}</p>
                     </div>
-                `;
-            }
-        });
-    } else {
-        // Mostrar protocolos DURAN y ACTIVE MOTION de forma simplificada
-        Object.keys(protocol).forEach(phaseKey => {
-            if (phaseKey.startsWith('phase_')) {
-                const phase = protocol[phaseKey];
-                html += `
-                    <div class="protocol-week">
-                        <h4>${phase.timeframe}</h4>
-                        <div class="exercise-list">
-                            ${phase.exercises.map(exercise => `
-                                <div class="exercise-item">
-                                    <div class="exercise-header">
-                                        <span class="exercise-name">${exercise.name}</span>
+                    <div class="exercise-list">
+                        ${phase.exercises.map(exercise => `
+                            <div class="exercise-item">
+                                <div class="exercise-header">
+                                    <span class="exercise-name">${exercise.name}</span>
+                                    ${exercise.duration > 0 ? `
                                         <button class="btn btn--sm btn--primary" onclick="startExercise('${exercise.name}', '${exercise.description}', ${exercise.duration})">
                                             Iniciar Ejercicio
                                         </button>
-                                    </div>
-                                    <div class="exercise-description">${exercise.description}</div>
-                                    <div class="exercise-details">
-                                        <span><strong>Duración:</strong> ${exercise.duration}s</span>
-                                        <span><strong>Repeticiones:</strong> ${exercise.repetitions}</span>
-                                        <span><strong>Frecuencia:</strong> ${exercise.frequency}</span>
-                                    </div>
+                                    ` : ''}
                                 </div>
-                            `).join('')}
-                        </div>
+                                <div class="exercise-description">${exercise.description}</div>
+                                <div class="exercise-details">
+                                    ${exercise.duration > 0 ? `<span><strong>Duración:</strong> ${exercise.duration}s</span>` : ''}
+                                    <span><strong>Repeticiones:</strong> ${exercise.repetitions}</span>
+                                    <span><strong>Frecuencia:</strong> ${exercise.frequency}</span>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
-                `;
-            }
+                </div>
+            `;
         });
+        
+        content.innerHTML = html;
+    } catch (error) {
+        console.error('Error mostrando protocolo:', error);
+        showAlert('Error cargando protocolo de ejercicios', 'error');
     }
-    
-    content.innerHTML = html;
 }
 
 function startExercise(name, description, duration) {
@@ -541,8 +657,908 @@ function closeExerciseModal() {
     currentExerciseTimer = null;
 }
 
+// Clinical Histories Functions
+function showClinicalHistories() {
+    console.log('Mostrando historias clínicas...');
+    showSection('clinicalHistories');
+}
+
+function loadClinicalHistoriesList() {
+    const container = document.getElementById('clinicalHistoriesList');
+    if (!container) return;
+    
+    if (patients.length === 0) {
+        container.innerHTML = '<div class="no-results"><h3>No hay pacientes registrados</h3><p>Registre pacientes para ver sus historias clínicas completas.</p></div>';
+        return;
+    }
+    
+    const html = patients.map(patient => {
+        const followUpCount = patient.follow_ups ? patient.follow_ups.length : 0;
+        const lastControl = patient.follow_ups && patient.follow_ups.length > 0 
+            ? patient.follow_ups[patient.follow_ups.length - 1]
+            : null;
+        
+        return `
+            <div class="clinical-history-item" onclick="showIndividualClinicalHistory('${patient.id}')">
+                <div class="clinical-history-header">
+                    <h3 class="clinical-history-patient-name">${patient.identification.full_name}</h3>
+                    <div class="clinical-history-stats">
+                        <span class="clinical-history-stat">${followUpCount} controles</span>
+                        <span class="clinical-history-stat">${patient.initial_data?.injured_zones ? 'Zonas ' + patient.initial_data.injured_zones.join(', ') : 'Sin zona'}</span>
+                    </div>
+                </div>
+                <div class="clinical-history-details">
+                    <div class="clinical-history-detail">
+                        <strong>Documento:</strong> ${patient.identification.document_type} - ${patient.identification.document_number}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Fecha Ingreso:</strong> ${formatDate(patient.identification.admission_date)}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Cirugía:</strong> ${patient.initial_data?.surgery_date ? formatDate(patient.initial_data.surgery_date) : 'No registrada'}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Último Control:</strong> ${lastControl ? `Semana ${lastControl.week} - ${formatDate(lastControl.date)}` : 'Sin controles'}
+                    </div>
+                </div>
+                <div class="clinical-history-actions">
+                    <button class="btn btn--sm btn--primary" onclick="event.stopPropagation(); showIndividualClinicalHistory('${patient.id}')">
+                        Ver Historia Completa
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+function searchClinicalHistories() {
+    const searchInput = document.getElementById('clinicalHistorySearch');
+    const container = document.getElementById('clinicalHistoriesList');
+    
+    if (!searchInput || !container) return;
+    
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    
+    if (!searchTerm) {
+        loadClinicalHistoriesList();
+        return;
+    }
+    
+    const filteredPatients = patients.filter(patient => 
+        patient.identification.full_name.toLowerCase().includes(searchTerm) ||
+        patient.identification.document_number.includes(searchTerm)
+    );
+    
+    if (filteredPatients.length === 0) {
+        container.innerHTML = '<div class="no-results"><h3>No se encontraron pacientes</h3><p>Intente con un término de búsqueda diferente.</p></div>';
+        return;
+    }
+    
+    // Similar rendering logic as loadClinicalHistoriesList but with filtered patients
+    const html = filteredPatients.map(patient => {
+        const followUpCount = patient.follow_ups ? patient.follow_ups.length : 0;
+        const lastControl = patient.follow_ups && patient.follow_ups.length > 0 
+            ? patient.follow_ups[patient.follow_ups.length - 1]
+            : null;
+        
+        return `
+            <div class="clinical-history-item" onclick="showIndividualClinicalHistory('${patient.id}')">
+                <div class="clinical-history-header">
+                    <h3 class="clinical-history-patient-name">${patient.identification.full_name}</h3>
+                    <div class="clinical-history-stats">
+                        <span class="clinical-history-stat">${followUpCount} controles</span>
+                        <span class="clinical-history-stat">${patient.initial_data?.injured_zones ? 'Zonas ' + patient.initial_data.injured_zones.join(', ') : 'Sin zona'}</span>
+                    </div>
+                </div>
+                <div class="clinical-history-details">
+                    <div class="clinical-history-detail">
+                        <strong>Documento:</strong> ${patient.identification.document_type} - ${patient.identification.document_number}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Fecha Ingreso:</strong> ${formatDate(patient.identification.admission_date)}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Cirugía:</strong> ${patient.initial_data?.surgery_date ? formatDate(patient.initial_data.surgery_date) : 'No registrada'}
+                    </div>
+                    <div class="clinical-history-detail">
+                        <strong>Último Control:</strong> ${lastControl ? `Semana ${lastControl.week} - ${formatDate(lastControl.date)}` : 'Sin controles'}
+                    </div>
+                </div>
+                <div class="clinical-history-actions">
+                    <button class="btn btn--sm btn--primary" onclick="event.stopPropagation(); showIndividualClinicalHistory('${patient.id}')">
+                        Ver Historia Completa
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+function showIndividualClinicalHistory(patientId) {
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) {
+        showAlert('Paciente no encontrado', 'error');
+        return;
+    }
+    
+    selectedPatientId = patientId;
+    
+    const nameElement = document.getElementById('clinicalHistoryPatientName');
+    const contentElement = document.getElementById('individualHistoryContent');
+    
+    if (nameElement) {
+        nameElement.textContent = `Historia Clínica - ${patient.identification.full_name}`;
+    }
+    
+    if (contentElement) {
+        contentElement.innerHTML = generateIndividualHistoryHTML(patient);
+    }
+    
+    showSection('individualClinicalHistory');
+}
+
+function generateIndividualHistoryHTML(patient) {
+    return `
+        <!-- Identificación del Paciente -->
+        <div class="clinical-history-section">
+            <div class="clinical-history-section-header">
+                <h3>Identificación del Paciente</h3>
+                <button class="btn btn--sm btn--secondary" onclick="editSection('identification', '${patient.id}')">
+                    Editar
+                </button>
+            </div>
+            <div class="clinical-history-section-body">
+                ${generateIdentificationHTML(patient.identification)}
+            </div>
+        </div>
+
+        <!-- Datos Iniciales del Trauma -->
+        <div class="clinical-history-section">
+            <div class="clinical-history-section-header">
+                <h3>Datos Iniciales del Trauma</h3>
+                <button class="btn btn--sm btn--secondary" onclick="editSection('initial_data', '${patient.id}')">
+                    Editar
+                </button>
+            </div>
+            <div class="clinical-history-section-body">
+                ${generateInitialDataHTML(patient.initial_data)}
+            </div>
+        </div>
+
+        <!-- TAM por Dedo - Timeline de evolución -->
+        <div class="clinical-history-section">
+            <div class="clinical-history-section-header">
+                <h3>Evolución TAM por Dedo</h3>
+            </div>
+            <div class="clinical-history-section-body">
+                ${generateTAMEvolutionHTML(patient.follow_ups)}
+            </div>
+        </div>
+
+        <!-- Controles de Seguimiento -->
+        <div class="clinical-history-section">
+            <div class="clinical-history-section-header">
+                <h3>Controles de Seguimiento</h3>
+            </div>
+            <div class="clinical-history-section-body">
+                ${generateFollowUpControlsHTML(patient.follow_ups, patient.id)}
+            </div>
+        </div>
+
+        <!-- Registro de Auditoría -->
+        <div class="clinical-history-section">
+            <div class="clinical-history-section-header">
+                <h3>Registro de Auditoría</h3>
+            </div>
+            <div class="clinical-history-section-body">
+                ${generateAuditTrailHTML(patient.audit_trail)}
+            </div>
+        </div>
+    `;
+}
+
+function generateIdentificationHTML(identification) {
+    return `
+        <div class="clinical-data-grid">
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Nombre Completo</div>
+                <div class="clinical-data-value">${identification.full_name}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Documento</div>
+                <div class="clinical-data-value">${identification.document_type} - ${identification.document_number}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Edad</div>
+                <div class="clinical-data-value">${identification.age} años</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Sexo</div>
+                <div class="clinical-data-value">${identification.sex}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Ocupación</div>
+                <div class="clinical-data-value">${identification.occupation}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">País de Origen</div>
+                <div class="clinical-data-value">${identification.origin_country || 'No registrado'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Lateralidad</div>
+                <div class="clinical-data-value">${identification.laterality || 'No registrada'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Fecha de Ingreso</div>
+                <div class="clinical-data-value">${formatDate(identification.admission_date)}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Teléfono</div>
+                <div class="clinical-data-value">${identification.phone}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">EPS</div>
+                <div class="clinical-data-value">${identification.eps}</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateInitialDataHTML(initialData) {
+    if (!initialData) return '<p>No hay datos iniciales registrados.</p>';
+    
+    return `
+        <div class="clinical-data-grid">
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Zona(s) Lesionada(s)</div>
+                <div class="clinical-data-value">${initialData.injured_zones ? 'Zonas ' + initialData.injured_zones.join(', ') : 'No especificada'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Objeto</div>
+                <div class="clinical-data-value">${initialData.object || 'No especificado'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Etiología</div>
+                <div class="clinical-data-value">${initialData.etiology || 'No especificada'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Mecanismo Trauma</div>
+                <div class="clinical-data-value">${initialData.trauma_mechanism || 'No especificado'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Fecha Cirugía</div>
+                <div class="clinical-data-value">${formatDate(initialData.surgery_date)}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Días para Cirugía</div>
+                <div class="clinical-data-value">${initialData.days_to_surgery || 0} días</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Tendones Comprometidos</div>
+                <div class="clinical-data-value">${initialData.compromised_flexor_tendon?.join(', ') || 'No especificados'}</div>
+            </div>
+            <div class="clinical-data-item">
+                <div class="clinical-data-label">Técnica Reparación</div>
+                <div class="clinical-data-value">${initialData.repair_technique || 'No especificada'}</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateTAMEvolutionHTML(followUps) {
+    if (!followUps || followUps.length === 0) {
+        return '<p>No hay controles registrados para mostrar evolución TAM.</p>';
+    }
+    
+    return `
+        <div class="evolution-timeline">
+            ${followUps.sort((a, b) => a.week - b.week).map(followUp => `
+                <div class="evolution-item">
+                    <div class="evolution-content">
+                        <div class="evolution-header">
+                            <h4>Semana ${followUp.week}</h4>
+                            <span class="evolution-date">${formatDate(followUp.date)}</span>
+                        </div>
+                        ${generateTAMByFingerHTML(followUp.tam_by_finger)}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateTAMByFingerHTML(tamByFinger) {
+    if (!tamByFinger) return '<p>TAM por dedo no calculado.</p>';
+    
+    return `
+        <div class="tam-by-finger-results">
+            ${Object.keys(tamByFinger).map(fingerKey => {
+                const fingerNum = fingerKey.replace('finger', '');
+                const data = tamByFinger[fingerKey];
+                return `
+                    <div class="tam-finger-card">
+                        <div class="tam-finger-title">Dedo ${fingerNum}</div>
+                        <div class="tam-finger-score">${data.tam}°</div>
+                        <div class="tam-finger-percentage">${data.percentage.toFixed(1)}%</div>
+                        <div class="tam-finger-classification ${getClassificationClass(data.percentage)}">
+                            ${getClassificationText(data.percentage)}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+function generateFollowUpControlsHTML(followUps, patientId) {
+    if (!followUps || followUps.length === 0) {
+        return '<p>No hay controles de seguimiento registrados.</p>';
+    }
+    
+    return `
+        <div class="evolution-timeline">
+            ${followUps.sort((a, b) => a.week - b.week).map(followUp => `
+                <div class="evolution-item">
+                    <div class="evolution-content">
+                        <div class="evolution-header">
+                            <h4>Control - Semana ${followUp.week}</h4>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span class="evolution-date">${formatDate(followUp.date)}</span>
+                                <button class="btn btn--sm btn--secondary" onclick="editFollowUp('${patientId}', ${followUp.week})">
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="clinical-data-grid">
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Protocolo</div>
+                                <div class="clinical-data-value">${followUp.protocol || 'No especificado'}</div>
+                            </div>
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Terapias Completas</div>
+                                <div class="clinical-data-value">${followUp.complete_therapies ? 'Sí' : 'No'}</div>
+                            </div>
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Quick DASH</div>
+                                <div class="clinical-data-value">${followUp.quick_dash_score?.toFixed(2) || 'No calculado'}</div>
+                            </div>
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Strickland</div>
+                                <div class="clinical-data-value">${followUp.strickland_result?.toFixed(1) || 'No calculado'}%</div>
+                            </div>
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Retorno Laboral</div>
+                                <div class="clinical-data-value">${followUp.return_to_previous_occupation ? 'Sí' : 'No'}</div>
+                            </div>
+                            <div class="clinical-data-item">
+                                <div class="clinical-data-label">Grado Discapacidad</div>
+                                <div class="clinical-data-value">${followUp.dash_disability_grade || 'No calculado'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function generateAuditTrailHTML(auditTrail) {
+    if (!auditTrail || auditTrail.length === 0) {
+        return '<p>No hay registros de auditoría disponibles.</p>';
+    }
+    
+    return `
+        <div class="audit-trail">
+            ${auditTrail.map(entry => `
+                <div class="audit-entry">
+                    <div class="audit-timestamp">${formatDateTime(entry.timestamp)}</div>
+                    <div><strong>Médico:</strong> Dr(a). ${entry.doctor_name} (${entry.doctor_id})</div>
+                    <div><strong>Acción:</strong> ${entry.action}</div>
+                    <div><strong>Sección:</strong> ${entry.section}</div>
+                    ${entry.changes ? `<div><strong>Cambios:</strong> ${entry.changes}</div>` : ''}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// CORRECTED Edit Functions
+function editSection(sectionName, patientId) {
+    if (!currentUser) {
+        showAlert('Debe estar autenticado para editar', 'error');
+        return;
+    }
+    
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) return;
+    
+    editingSection = sectionName;
+    selectedPatientId = patientId;
+    
+    const modal = document.getElementById('editModal');
+    const title = document.getElementById('editModalTitle');
+    const content = document.getElementById('editFormContent');
+    
+    if (!modal || !title || !content) return;
+    
+    title.textContent = `Editar ${getSectionTitle(sectionName)}`;
+    content.innerHTML = generateEditFormHTML(sectionName, patient[sectionName]);
+    modal.classList.remove('hidden');
+}
+
+function editFollowUp(patientId, week) {
+    if (!currentUser) {
+        showAlert('Debe estar autenticado para editar', 'error');
+        return;
+    }
+    
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient || !patient.follow_ups) return;
+    
+    const followUp = patient.follow_ups.find(fu => fu.week === week);
+    if (!followUp) return;
+    
+    editingSection = 'follow_up';
+    selectedPatientId = patientId;
+    pendingEditData = { week: week };
+    
+    const modal = document.getElementById('editModal');
+    const title = document.getElementById('editModalTitle');
+    const content = document.getElementById('editFormContent');
+    
+    if (!modal || !title || !content) return;
+    
+    title.textContent = `Editar Control - Semana ${week}`;
+    content.innerHTML = generateFollowUpEditFormHTML(followUp);
+    modal.classList.remove('hidden');
+}
+
+function getSectionTitle(sectionName) {
+    const titles = {
+        'identification': 'Identificación del Paciente',
+        'initial_data': 'Datos Iniciales del Trauma',
+        'follow_up': 'Control de Seguimiento'
+    };
+    return titles[sectionName] || 'Sección';
+}
+
+function generateEditFormHTML(sectionName, data) {
+    if (sectionName === 'identification') {
+        return generateIdentificationEditForm(data);
+    } else if (sectionName === 'initial_data') {
+        return generateInitialDataEditForm(data);
+    }
+    return '<p>Formulario de edición no disponible.</p>';
+}
+
+function generateIdentificationEditForm(data) {
+    return `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Nombre Completo</label>
+                <input type="text" id="edit_full_name" class="form-control" value="${data.full_name}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Edad</label>
+                <input type="number" id="edit_age" class="form-control" value="${data.age}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ocupación</label>
+                <input type="text" id="edit_occupation" class="form-control" value="${data.occupation}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" id="edit_phone" class="form-control" value="${data.phone}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="edit_email" class="form-control" value="${data.email || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Dirección</label>
+                <input type="text" id="edit_address" class="form-control" value="${data.address}" required>
+            </div>
+        </div>
+    `;
+}
+
+function generateInitialDataEditForm(data) {
+    if (!data) return '<p>No hay datos iniciales para editar.</p>';
+    
+    return `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Objeto</label>
+                <input type="text" id="edit_object" class="form-control" value="${data.object || ''}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Etiología</label>
+                <select id="edit_etiology" class="form-control">
+                    ${appData.etiology_types.map(type => 
+                        `<option value="${type}" ${data.etiology === type ? 'selected' : ''}>${type}</option>`
+                    ).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Técnica Reparación</label>
+                <input type="text" id="edit_repair_technique" class="form-control" value="${data.repair_technique || ''}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha Cirugía</label>
+                <input type="date" id="edit_surgery_date" class="form-control" value="${data.surgery_date || ''}">
+            </div>
+        </div>
+    `;
+}
+
+function generateFollowUpEditFormHTML(followUp) {
+    return `
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Protocolo</label>
+                <select id="edit_protocol" class="form-control">
+                    ${appData.protocols.map(protocol => 
+                        `<option value="${protocol}" ${followUp.protocol === protocol ? 'selected' : ''}>${protocol}</option>`
+                    ).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Terapias Completas</label>
+                <select id="edit_complete_therapies" class="form-control">
+                    <option value="true" ${followUp.complete_therapies ? 'selected' : ''}>Sí</option>
+                    <option value="false" ${!followUp.complete_therapies ? 'selected' : ''}>No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Retorno a Ocupación Previa</label>
+                <select id="edit_return_to_occupation" class="form-control">
+                    <option value="true" ${followUp.return_to_previous_occupation ? 'selected' : ''}>Sí</option>
+                    <option value="false" ${!followUp.return_to_previous_occupation ? 'selected' : ''}>No</option>
+                </select>
+            </div>
+            <div class="form-group col-span-2">
+                <label class="form-label">Razón Terapias Incompletas</label>
+                <textarea id="edit_incomplete_reason" class="form-control" rows="3">${followUp.incomplete_reason || ''}</textarea>
+            </div>
+        </div>
+    `;
+}
+
+function handleEditSubmit(event) {
+    event.preventDefault();
+    
+    if (!editingSection || !selectedPatientId || !currentUser) {
+        showAlert('Error en el proceso de edición', 'error');
+        return;
+    }
+    
+    const confirmationModal = document.getElementById('confirmationModal');
+    const confirmationMessage = document.getElementById('confirmationMessage');
+    
+    if (confirmationModal && confirmationMessage) {
+        confirmationMessage.textContent = `¿Está seguro que desea guardar los cambios en ${getSectionTitle(editingSection)}?`;
+        confirmationModal.classList.remove('hidden');
+    }
+}
+
+function confirmEdit() {
+    if (!editingSection || !selectedPatientId || !currentUser) return;
+    
+    const patient = patients.find(p => p.id === selectedPatientId);
+    if (!patient) return;
+    
+    const changes = collectEditChanges();
+    if (!changes) return;
+    
+    // Apply changes to patient data
+    if (editingSection === 'identification') {
+        Object.assign(patient.identification, changes);
+    } else if (editingSection === 'initial_data') {
+        Object.assign(patient.initial_data, changes);
+    } else if (editingSection === 'follow_up' && pendingEditData) {
+        const followUp = patient.follow_ups.find(fu => fu.week === pendingEditData.week);
+        if (followUp) {
+            Object.assign(followUp, changes);
+        }
+    }
+    
+    // Add audit trail entry
+    if (!patient.audit_trail) patient.audit_trail = [];
+    patient.audit_trail.push({
+        timestamp: new Date().toISOString(),
+        doctor_id: currentUser.id,
+        doctor_name: currentUser.name,
+        action: 'Edición',
+        section: getSectionTitle(editingSection),
+        changes: Object.keys(changes).join(', ')
+    });
+    
+    // Save changes
+    savePatients();
+    
+    // Close modals and refresh view
+    closeEditModal();
+    document.getElementById('confirmationModal').classList.add('hidden');
+    showIndividualClinicalHistory(selectedPatientId);
+    showAlert(`${getSectionTitle(editingSection)} actualizado exitosamente`, 'success');
+    
+    // Reset edit state
+    editingSection = null;
+    pendingEditData = null;
+}
+
+function cancelEdit() {
+    document.getElementById('confirmationModal').classList.add('hidden');
+}
+
+function collectEditChanges() {
+    const changes = {};
+    
+    try {
+        if (editingSection === 'identification') {
+            changes.full_name = document.getElementById('edit_full_name')?.value || '';
+            changes.age = parseInt(document.getElementById('edit_age')?.value) || 0;
+            changes.occupation = document.getElementById('edit_occupation')?.value || '';
+            changes.phone = document.getElementById('edit_phone')?.value || '';
+            changes.email = document.getElementById('edit_email')?.value || '';
+            changes.address = document.getElementById('edit_address')?.value || '';
+        } else if (editingSection === 'initial_data') {
+            changes.object = document.getElementById('edit_object')?.value || '';
+            changes.etiology = document.getElementById('edit_etiology')?.value || '';
+            changes.repair_technique = document.getElementById('edit_repair_technique')?.value || '';
+            changes.surgery_date = document.getElementById('edit_surgery_date')?.value || '';
+        } else if (editingSection === 'follow_up') {
+            changes.protocol = document.getElementById('edit_protocol')?.value || '';
+            changes.complete_therapies = document.getElementById('edit_complete_therapies')?.value === 'true';
+            changes.return_to_previous_occupation = document.getElementById('edit_return_to_occupation')?.value === 'true';
+            changes.incomplete_reason = document.getElementById('edit_incomplete_reason')?.value || '';
+        }
+    } catch (error) {
+        console.error('Error recolectando cambios:', error);
+        showAlert('Error recolectando cambios de edición', 'error');
+        return null;
+    }
+    
+    return changes;
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    editingSection = null;
+    pendingEditData = null;
+}
+
+// CORRECTED Clinical History Copy Function with Extended Descriptions
+function copyCompleteHistory() {
+    if (!selectedPatientId) {
+        showAlert('No hay paciente seleccionado', 'error');
+        return;
+    }
+    
+    const patient = patients.find(p => p.id === selectedPatientId);
+    if (!patient) {
+        showAlert('Paciente no encontrado', 'error');
+        return;
+    }
+    
+    const template = generateCompleteHistoryTemplate(patient);
+    
+    try {
+        // Use the modern Clipboard API if available
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(template).then(() => {
+                showAlert('Historia clínica completa copiada al portapapeles exitosamente', 'success');
+            }).catch(err => {
+                console.error('Error copying to clipboard:', err);
+                fallbackCopyTextToClipboard(template);
+            });
+        } else {
+            // Fallback for older browsers
+            fallbackCopyTextToClipboard(template);
+        }
+    } catch (error) {
+        console.error('Error copiando historia:', error);
+        showAlert('Error al copiar historia clínica', 'error');
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showAlert('Historia clínica completa copiada al portapapeles exitosamente', 'success');
+    } catch (err) {
+        console.error('Error copying text:', err);
+        showAlert('Error al copiar historia clínica', 'error');
+    } finally {
+        document.body.removeChild(textArea);
+    }
+}
+
+function generateCompleteHistoryTemplate(patient) {
+    const getBmrcDescription = (value, scale) => {
+        const scaleData = scale === 'motor' ? appData.bmrc_motor_scale : appData.bmrc_sensory_scale;
+        const item = scaleData.find(s => s.value == value);
+        return item ? item.description : 'No evaluado';
+    };
+
+    const latestFollowUp = patient.follow_ups && patient.follow_ups.length > 0 
+        ? patient.follow_ups[patient.follow_ups.length - 1] 
+        : null;
+
+    return `📋 HISTORIA CLÍNICA COMPLETA - TENDONES FLEXORES
+
+===============================================
+IDENTIFICACIÓN DEL PACIENTE
+===============================================
+Fecha de Ingreso: ${formatDate(patient.identification.admission_date)}
+Tiempo de Evolución: ${patient.identification.evolution_time_hours} horas
+Nombre Completo: ${patient.identification.full_name}
+Tipo de Documento: ${patient.identification.document_type}
+Número de Documento: ${patient.identification.document_number}
+Edad: ${patient.identification.age} años
+Sexo: ${patient.identification.sex}
+Nivel Educativo: ${patient.identification.education_level}
+Ocupación: ${patient.identification.occupation}
+País de Origen: ${patient.identification.origin_country || 'No registrado'}
+Ciudad de Nacimiento: ${patient.identification.birth_city}
+Dirección: ${patient.identification.address}
+Departamento: ${patient.identification.department}
+Ciudad de Residencia: ${patient.identification.city}
+Teléfono: ${patient.identification.phone}
+Email: ${patient.identification.email || 'No registrado'}
+EPS: ${patient.identification.eps}
+Tipo de Afiliación: ${patient.identification.affiliation_type}
+Lateralidad: ${patient.identification.laterality || 'No registrada'}
+Religión: ${patient.identification.religion || 'No registrada'}
+
+Acompañante: ${patient.identification.companion_name || 'No registrado'}
+Relación: ${patient.identification.companion_relation || 'No registrada'}
+Teléfono Acompañante: ${patient.identification.companion_phone || 'No registrado'}
+
+===============================================
+DATOS INICIALES DEL TRAUMA
+===============================================
+Zona(s) Lesionada(s): ${patient.initial_data?.injured_zones ? 'Zonas ' + patient.initial_data.injured_zones.join(', ') : 'No registradas'}
+Objeto: ${patient.initial_data?.object || 'No registrado'}
+Etiología: ${patient.initial_data?.etiology || 'No registrada'}
+Mecanismo de Trauma: ${patient.initial_data?.trauma_mechanism || 'No registrado'}
+Descripción Prequirúrgica: ${patient.initial_data?.presurgical_description || 'No registrada'}
+
+Tendones Flexores Comprometidos: ${patient.initial_data?.compromised_flexor_tendon?.join(', ') || 'No registrados'}
+Descripción Tendones: ${patient.initial_data?.tendon_description || 'No registrada'}
+
+Lesiones Asociadas: ${patient.initial_data?.associated_injuries?.join(', ') || 'Ninguna'}
+Lesión Asociada Específica: ${patient.initial_data?.specific_associated_injury || 'Ninguna'}
+
+Tenorrafia (hilos): ${patient.initial_data?.tenorrhaphy_threads || 'No registrado'}
+Tipo de Reparación: ${patient.initial_data?.repair_type || 'No registrado'}
+Técnica de Reparación: ${patient.initial_data?.repair_technique || 'No registrada'}
+Tenolisis: ${patient.initial_data?.tenolysis || 'No registrada'}
+
+Fecha Quirúrgica: ${formatDate(patient.initial_data?.surgery_date)}
+Días para Cirugía: ${patient.initial_data?.days_to_surgery || 0} días
+
+===============================================
+EVALUACIÓN MOTORA INICIAL (BMRC)
+===============================================
+FDS Dedo 2: ${patient.initial_data?.bmrc_motor?.fds?.finger2 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fds?.finger2, 'motor')}
+FDS Dedo 3: ${patient.initial_data?.bmrc_motor?.fds?.finger3 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fds?.finger3, 'motor')}
+FDS Dedo 4: ${patient.initial_data?.bmrc_motor?.fds?.finger4 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fds?.finger4, 'motor')}
+FDS Dedo 5: ${patient.initial_data?.bmrc_motor?.fds?.finger5 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fds?.finger5, 'motor')}
+
+FDP Dedo 2: ${patient.initial_data?.bmrc_motor?.fdp?.finger2 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fdp?.finger2, 'motor')}
+FDP Dedo 3: ${patient.initial_data?.bmrc_motor?.fdp?.finger3 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fdp?.finger3, 'motor')}
+FDP Dedo 4: ${patient.initial_data?.bmrc_motor?.fdp?.finger4 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fdp?.finger4, 'motor')}
+FDP Dedo 5: ${patient.initial_data?.bmrc_motor?.fdp?.finger5 || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fdp?.finger5, 'motor')}
+
+FPL: ${patient.initial_data?.bmrc_motor?.fpl || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fpl, 'motor')}
+FCU: ${patient.initial_data?.bmrc_motor?.fcu || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fcu, 'motor')}
+FCR: ${patient.initial_data?.bmrc_motor?.fcr || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.fcr, 'motor')}
+PL: ${patient.initial_data?.bmrc_motor?.pl || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_motor?.pl, 'motor')}
+
+===============================================
+EVALUACIÓN DE LA SENSIBILIDAD INICIAL (BMRC)
+===============================================
+Nervio Mediano: ${patient.initial_data?.bmrc_sensory?.median || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_sensory?.median, 'sensory')}
+Nervio Cubital: ${patient.initial_data?.bmrc_sensory?.ulnar || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_sensory?.ulnar, 'sensory')}
+Nervio Radial: ${patient.initial_data?.bmrc_sensory?.radial || 'NE'} - ${getBmrcDescription(patient.initial_data?.bmrc_sensory?.radial, 'sensory')}
+
+===============================================
+CONTROLES DE SEGUIMIENTO
+===============================================
+${patient.follow_ups && patient.follow_ups.length > 0 ? 
+    patient.follow_ups.sort((a, b) => a.week - b.week).map(fu => `
+--- CONTROL SEMANA ${fu.week} (${formatDate(fu.date)}) ---
+Protocolo Utilizado: ${fu.protocol || 'No registrado'}
+Terapias Completas: ${fu.complete_therapies ? 'Sí' : 'No'}
+${fu.incomplete_reason ? `Razón Incompletas: ${fu.incomplete_reason}` : ''}
+
+Quick DASH: ${fu.quick_dash_score?.toFixed(2) || 'No calculado'}
+Grado de Discapacidad: ${fu.dash_disability_grade || 'No calculado'}
+Strickland: ${fu.strickland_result?.toFixed(1) || 'No calculado'}%
+Clasificación Strickland: ${fu.strickland_classification || 'No calculada'}
+
+Retorno a Ocupación Previa: ${fu.return_to_previous_occupation ? 'Sí' : 'No'}
+Cambio de Ocupación: ${fu.occupation_change || 'No registrado'}
+Tiempo Retorno Laboral: ${fu.return_time_months || 0} meses
+
+EVALUACIÓN MOTORA (BMRC):
+FPL: ${fu.bmrc_motor?.fpl || 'NE'} - ${getBmrcDescription(fu.bmrc_motor?.fpl, 'motor')}
+FCU: ${fu.bmrc_motor?.fcu || 'NE'} - ${getBmrcDescription(fu.bmrc_motor?.fcu, 'motor')}
+FCR: ${fu.bmrc_motor?.fcr || 'NE'} - ${getBmrcDescription(fu.bmrc_motor?.fcr, 'motor')}
+PL: ${fu.bmrc_motor?.pl || 'NE'} - ${getBmrcDescription(fu.bmrc_motor?.pl, 'motor')}
+
+EVALUACIÓN DE LA SENSIBILIDAD (BMRC):
+Nervio Mediano: ${fu.bmrc_sensory?.median || 'NE'} - ${getBmrcDescription(fu.bmrc_sensory?.median, 'sensory')}
+Nervio Cubital: ${fu.bmrc_sensory?.ulnar || 'NE'} - ${getBmrcDescription(fu.bmrc_sensory?.ulnar, 'sensory')}
+Nervio Radial: ${fu.bmrc_sensory?.radial || 'NE'} - ${getBmrcDescription(fu.bmrc_sensory?.radial, 'sensory')}
+
+TAM por Dedo:
+${fu.tam_by_finger ? Object.keys(fu.tam_by_finger).map(fingerKey => {
+    const fingerNum = fingerKey.replace('finger', '');
+    const data = fu.tam_by_finger[fingerKey];
+    return `Dedo ${fingerNum}: ${data.tam}° (${data.percentage.toFixed(1)}%) - ${data.classification}`;
+}).join('\n') : 'No calculado'}
+
+Dinamómetro: Izq ${fu.dynamometer?.left || 0}lb - Der ${fu.dynamometer?.right || 0}lb (Diff: ${fu.dynamometer?.difference || 0}lb)
+
+Distancia Uña-Palma:
+Dedo 2: ${fu.nail_palm_distance?.finger2 || 0}mm
+Dedo 3: ${fu.nail_palm_distance?.finger3 || 0}mm
+Dedo 4: ${fu.nail_palm_distance?.finger4 || 0}mm
+Dedo 5: ${fu.nail_palm_distance?.finger5 || 0}mm
+`).join('\n') : 'No hay controles de seguimiento registrados'}
+
+===============================================
+REGISTRO MÉDICO
+===============================================
+Paciente registrado por: Dr(a). ${patient.created_by?.name || 'No registrado'} (${patient.created_by?.id || 'N/A'})
+Fecha de registro: ${formatDate(patient.created_at)}
+
+${latestFollowUp ? `Último control por: Dr(a). ${latestFollowUp.created_by?.name || latestFollowUp.modified_by?.name || 'No registrado'}` : ''}
+
+===============================================
+ID del Sistema: ${patient.id}
+Generado el: ${formatDateTime(new Date().toISOString())}
+===============================================`;
+}
+
+// Classification helper functions
+function getClassificationClass(percentage) {
+    if (percentage >= 85) return 'excellent';
+    if (percentage >= 70) return 'good';
+    if (percentage >= 50) return 'regular';
+    return 'poor';
+}
+
+function getClassificationText(percentage) {
+    if (percentage >= 85) return 'Excelente';
+    if (percentage >= 70) return 'Bueno';
+    if (percentage >= 50) return 'Regular';
+    return 'Pobre';
+}
+
 // Dashboard functions
 function updateDashboard() {
+    console.log('Actualizando dashboard...');
     const totalPatients = patients.length;
     const pendingControls = calculatePendingControls();
     const incompletePatients = calculateIncompletePatients();
@@ -554,6 +1570,8 @@ function updateDashboard() {
     if (totalElement) totalElement.textContent = totalPatients;
     if (pendingElement) pendingElement.textContent = pendingControls;
     if (incompleteElement) incompleteElement.textContent = incompletePatients;
+    
+    console.log('Dashboard actualizado - Pacientes:', totalPatients);
 }
 
 function calculatePendingControls() {
@@ -588,6 +1606,7 @@ function calculateIncompletePatients() {
             const surgeryDate = new Date(patient.initial_data.surgery_date);
             const weeksPassedSinceSurgery = Math.floor((today - surgeryDate) / (7 * 24 * 60 * 60 * 1000));
             
+            // Check if patient is missing any follow-ups for 12-week period
             if (weeksPassedSinceSurgery >= 12) {
                 const hasAllFollowUps = appData.follow_up_weeks.every(week => {
                     return patient.follow_ups && patient.follow_ups.some(fu => fu.week === week);
@@ -597,6 +1616,7 @@ function calculateIncompletePatients() {
                     incomplete++;
                 }
             } else {
+                // Check if patient is missing any controls they should have had by now
                 const hasMissingControls = appData.follow_up_weeks.some(week => {
                     if (weeksPassedSinceSurgery >= week) {
                         return !(patient.follow_ups && patient.follow_ups.some(fu => fu.week === week));
@@ -664,10 +1684,10 @@ function displaySearchResults(results, container) {
     }
     
     container.innerHTML = results.map(patient => `
-        <div class="search-result-item" onclick="showPatientHistory('${patient.id}')">
+        <div class="search-result-item" onclick="showIndividualClinicalHistory('${patient.id}')">
             <h4>${patient.identification.full_name}</h4>
             <p><strong>Documento:</strong> ${patient.identification.document_type} - ${patient.identification.document_number}</p>
-            <p><strong>Zona lesionada:</strong> ${patient.initial_data?.injured_zone || 'No especificada'}</p>
+            <p><strong>Zona lesionada:</strong> ${patient.initial_data?.injured_zones ? 'Zonas ' + patient.initial_data.injured_zones.join(', ') : 'No especificada'}</p>
             <p><strong>Fecha de ingreso:</strong> ${formatDate(patient.identification.admission_date)}</p>
         </div>
     `).join('');
@@ -683,7 +1703,7 @@ function displayFollowUpSearchResults(results, container) {
         <div class="search-result-item" onclick="selectPatientForFollowUp('${patient.id}')">
             <h4>${patient.identification.full_name}</h4>
             <p><strong>Documento:</strong> ${patient.identification.document_type} - ${patient.identification.document_number}</p>
-            <p><strong>Zona lesionada:</strong> ${patient.initial_data?.injured_zone || 'No especificada'}</p>
+            <p><strong>Zona lesionada:</strong> ${patient.initial_data?.injured_zones ? 'Zonas ' + patient.initial_data.injured_zones.join(', ') : 'No especificada'}</p>
             <p><strong>Cirugía:</strong> ${patient.initial_data?.surgery_date ? formatDate(patient.initial_data.surgery_date) : 'No registrada'}</p>
         </div>
     `).join('');
@@ -703,123 +1723,16 @@ function selectPatientForFollowUp(patientId) {
         if (formElement) formElement.classList.remove('hidden');
         if (selectionElement) selectionElement.style.display = 'none';
         
+        // Reset and clear the follow-up form
         const weekSelect = document.getElementById('followUpWeek');
         if (weekSelect) {
             weekSelect.value = '';
-            weekSelect.focus();
+            weekSelect.focus(); // Focus on the select to make it obvious
         }
         clearFollowUpForm();
         generateGoniometryGrid();
         generateQuickDashQuestions();
     }
-}
-
-function showPatientHistory(patientId) {
-    const patient = patients.find(p => p.id === patientId);
-    if (!patient) return;
-    
-    displayPatientHistory(patient);
-    showSection('patientHistory');
-}
-
-function displayPatientHistory(patient) {
-    const container = document.getElementById('historyContent');
-    if (!container) return;
-    
-    const historyHTML = `
-        <div class="history-patient-info">
-            <h3>${patient.identification.full_name}</h3>
-            <div class="form-grid">
-                <div><strong>Documento:</strong> ${patient.identification.document_type} - ${patient.identification.document_number}</div>
-                <div><strong>Edad:</strong> ${patient.identification.age} años</div>
-                <div><strong>Sexo:</strong> ${patient.identification.sex}</div>
-                <div><strong>Ocupación:</strong> ${patient.identification.occupation}</div>
-                <div><strong>Zona lesionada:</strong> ${patient.initial_data?.injured_zone || 'No especificada'}</div>
-                <div><strong>Fecha de cirugía:</strong> ${patient.initial_data?.surgery_date ? formatDate(patient.initial_data.surgery_date) : 'No registrada'}</div>
-            </div>
-        </div>
-        
-        <div class="history-timeline">
-            <div class="timeline-item initial">
-                <div class="timeline-content">
-                    <div class="timeline-header">
-                        <h4>Evaluación Inicial</h4>
-                        <span class="timeline-date">${formatDate(patient.identification.admission_date)}</span>
-                    </div>
-                    <div class="timeline-details">
-                        <div class="timeline-detail">
-                            <strong>Objeto:</strong>
-                            ${patient.initial_data?.object || 'No especificado'}
-                        </div>
-                        <div class="timeline-detail">
-                            <strong>Etiología:</strong>
-                            ${patient.initial_data?.etiology || 'No especificada'}
-                        </div>
-                        <div class="timeline-detail">
-                            <strong>Tendones comprometidos:</strong>
-                            ${patient.initial_data?.compromised_flexor_tendon?.join(', ') || 'No especificados'}
-                        </div>
-                        <div class="timeline-detail">
-                            <strong>Técnica de reparación:</strong>
-                            ${patient.initial_data?.repair_technique || 'No especificada'}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            ${generateFollowUpTimeline(patient.follow_ups || [])}
-        </div>
-    `;
-    
-    container.innerHTML = historyHTML;
-    
-    const editBtn = document.getElementById('editPatientBtn');
-    if (editBtn) {
-        editBtn.setAttribute('data-patient-id', patient.id);
-    }
-}
-
-function generateFollowUpTimeline(followUps) {
-    if (!followUps || followUps.length === 0) {
-        return '<div class="no-results"><p>No hay controles de seguimiento registrados</p></div>';
-    }
-    
-    return followUps.sort((a, b) => a.week - b.week).map(followUp => `
-        <div class="timeline-item">
-            <div class="timeline-content">
-                <div class="timeline-header">
-                    <h4>Control - Semana ${followUp.week}</h4>
-                    <span class="timeline-date">${followUp.date ? formatDate(followUp.date) : 'Fecha no registrada'}</span>
-                </div>
-                <div class="timeline-details">
-                    <div class="timeline-detail">
-                        <strong>Protocolo:</strong>
-                        ${followUp.protocol || 'No especificado'}
-                    </div>
-                    <div class="timeline-detail">
-                        <strong>Terapias completas:</strong>
-                        ${followUp.complete_therapies ? 'Sí' : 'No'}
-                    </div>
-                    <div class="timeline-detail">
-                        <strong>Quick DASH:</strong>
-                        ${followUp.quick_dash_score || 'No registrado'}
-                    </div>
-                    <div class="timeline-detail">
-                        <strong>TAM:</strong>
-                        ${followUp.tam_result || 'No calculado'}
-                    </div>
-                    <div class="timeline-detail">
-                        <strong>Strickland:</strong>
-                        ${followUp.strickland_result || 'No calculado'}%
-                    </div>
-                    <div class="timeline-detail">
-                        <strong>Retorno laboral:</strong>
-                        ${followUp.return_to_previous_occupation ? 'Sí' : 'No'}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
 }
 
 function showControlSelection() {
@@ -839,15 +1752,6 @@ function cancelFollowUp() {
     if (searchElement) searchElement.value = '';
     if (resultsElement) resultsElement.innerHTML = '';
     clearFollowUpForm();
-}
-
-function showPatientEditDialog() {
-    const editBtn = document.getElementById('editPatientBtn');
-    const patientId = editBtn?.getAttribute('data-patient-id');
-    
-    if (patientId) {
-        showAlert('Función de edición en desarrollo. Los cambios se registrarán con el médico actual.', 'info');
-    }
 }
 
 // Form handling functions
@@ -881,11 +1785,12 @@ function generateGoniometryGrid() {
     appData.fingers.forEach(finger => {
         html += `<div class="gonio-label">${finger.name}</div>`;
         appData.jointTypes.forEach(joint => {
+            // Skip IFD for thumb (finger 1)
             if (finger.number === 1 && joint === 'IFD') {
                 html += `<div></div>`;
             } else {
-                const inputId = `gonio_finger${finger.number}_${joint.replace(' ', '_')}`;
-                html += `<input type="number" id="${inputId}" class="gonio-input" min="0" max="180" placeholder="0°" onchange="calculateTAMAndStrickland()">`;
+                const inputId = `gonio_finger${finger.number}_${joint}`;
+                html += `<input type="number" id="${inputId}" class="gonio-input" min="0" max="180" placeholder="0°" onchange="calculateTAMByFingerAndStrickland()">`;
             }
         });
     });
@@ -893,10 +1798,16 @@ function generateGoniometryGrid() {
     container.innerHTML = html;
 }
 
-function calculateTAMAndStrickland() {
-    let totalTAM = 0;
+// IMPROVED TAM CALCULATION BY FINGER
+function calculateTAMByFingerAndStrickland() {
+    const resultsContainer = document.getElementById('tamByFingerResults');
+    if (!resultsContainer) return;
+    
     let totalStrickland = 0;
     let fingerCount = 0;
+    let tamByFinger = {};
+    
+    let html = '';
     
     appData.fingers.forEach(finger => {
         const mcf = parseFloat(document.getElementById(`gonio_finger${finger.number}_MCF`)?.value) || 0;
@@ -904,34 +1815,48 @@ function calculateTAMAndStrickland() {
         const ifd = finger.number === 1 ? 0 : (parseFloat(document.getElementById(`gonio_finger${finger.number}_IFD`)?.value) || 0);
         const deficit = parseFloat(document.getElementById(`gonio_finger${finger.number}_Déficit_Ext`)?.value) || 0;
         
-        if (mcf > 0 || ifp > 0 || ifd > 0) {
+        // Calculate TAM for this finger
+        const fingerTAM = (mcf + ifp + ifd) - deficit;
+        const normalTAM = appData.tam_normal_values[finger.number];
+        const tamPercentage = (fingerTAM / normalTAM) * 100;
+        
+        // Store TAM data for later use
+        tamByFinger[`finger${finger.number}`] = {
+            tam: fingerTAM,
+            percentage: tamPercentage,
+            classification: getClassificationText(tamPercentage)
+        };
+        
+        // Generate HTML for this finger
+        html += `
+            <div class="tam-finger-card">
+                <div class="tam-finger-title">${finger.name}</div>
+                <div class="tam-finger-score">${fingerTAM}°</div>
+                <div class="tam-finger-percentage">${tamPercentage.toFixed(1)}% de ${normalTAM}°</div>
+                <div class="tam-finger-classification ${getClassificationClass(tamPercentage)}">
+                    ${getClassificationText(tamPercentage)}
+                </div>
+            </div>
+        `;
+        
+        // Calculate Strickland for fingers 2-5
+        if (finger.number > 1 && (ifp > 0 || ifd > 0)) {
+            const stricklandValue = ((ifp + ifd) / 175) * 100;
+            totalStrickland += stricklandValue;
             fingerCount++;
-            
-            const fingerTAM = (mcf + ifp + ifd) - deficit;
-            totalTAM += fingerTAM;
-            
-            if (finger.number > 1) {
-                const stricklandValue = ((ifp + ifd) / 175) * 100;
-                totalStrickland += stricklandValue;
-            }
         }
     });
     
-    const tamResult = document.getElementById('tamResult');
-    const tamPercentage = document.getElementById('tamPercentage');
+    resultsContainer.innerHTML = html;
     
-    if (tamResult) tamResult.value = totalTAM;
-    
-    const normalTAM = 260 * fingerCount;
-    const tamPercent = fingerCount > 0 ? (totalTAM / normalTAM) * 100 : 0;
-    if (tamPercentage) tamPercentage.value = Math.round(tamPercent);
-    
+    // Update Strickland results
     const stricklandResult = document.getElementById('stricklandResult');
     const stricklandClassification = document.getElementById('stricklandClassification');
     
-    const avgStrickland = fingerCount > 1 ? totalStrickland / (fingerCount - 1) : 0;
+    const avgStrickland = fingerCount > 0 ? totalStrickland / fingerCount : 0;
     if (stricklandResult) stricklandResult.value = Math.round(avgStrickland);
     
+    // Strickland classification
     let classification = '';
     if (avgStrickland >= 85) classification = 'Excelente (85-100%)';
     else if (avgStrickland >= 70) classification = 'Bueno (70-84%)';
@@ -939,6 +1864,9 @@ function calculateTAMAndStrickland() {
     else classification = 'Pobre (<50%)';
     
     if (stricklandClassification) stricklandClassification.value = classification;
+    
+    // Store TAM by finger data for form submission
+    window.currentTAMByFinger = tamByFinger;
 }
 
 function generateQuickDashQuestions() {
@@ -992,15 +1920,18 @@ function calculateQuickDash() {
     });
     
     if (answeredQuestions < 10) {
+        // Need at least 10 out of 11 questions answered
         document.getElementById('quickDashScore').value = '';
         document.getElementById('dashDisabilityGrade').value = '';
         return;
     }
     
+    // QuickDASH formula: ((sum of responses / number of responses) - 1) * 25
     const quickDashScore = ((totalScore / answeredQuestions) - 1) * 25;
     
     document.getElementById('quickDashScore').value = Math.round(quickDashScore * 100) / 100;
     
+    // Disability grade
     let disabilityGrade = '';
     if (quickDashScore < 20) disabilityGrade = 'Leve (<20)';
     else if (quickDashScore <= 40) disabilityGrade = 'Moderado (20-40)';
@@ -1041,6 +1972,7 @@ function calculateDynamometerDifference() {
     document.getElementById('dynamometerDifference').value = difference.toFixed(1);
 }
 
+// CORRECCIÓN CRÍTICA: Fix for week selection persistence
 function loadExistingFollowUp() {
     const weekSelect = document.getElementById('followUpWeek');
     const week = parseInt(weekSelect.value);
@@ -1050,6 +1982,7 @@ function loadExistingFollowUp() {
         return;
     }
     
+    // Ensure the selected value is visually maintained
     weekSelect.style.fontWeight = 'bold';
     weekSelect.style.color = 'var(--color-primary)';
     
@@ -1069,17 +2002,21 @@ function loadExistingFollowUp() {
     }
     
     console.log('Control existente encontrado:', existingFollowUp);
+    // Populate form with existing data
     populateFollowUpForm(existingFollowUp);
 }
 
 function populateFollowUpForm(followUp) {
+    // Basic data
     if (followUp.protocol) document.getElementById('protocolUsed').value = followUp.protocol;
     if (followUp.complete_therapies !== undefined) document.getElementById('completeTherapies').value = followUp.complete_therapies ? 'true' : 'false';
     if (followUp.incomplete_reason) document.getElementById('incompleteReason').value = followUp.incomplete_reason;
     
+    // QuickDASH scores
     if (followUp.quick_dash_score) document.getElementById('quickDashScore').value = followUp.quick_dash_score;
     if (followUp.dash_disability_grade) document.getElementById('dashDisabilityGrade').value = followUp.dash_disability_grade;
     
+    // Work return
     if (followUp.return_to_previous_occupation !== undefined) document.getElementById('returnToPreviousOccupation').value = followUp.return_to_previous_occupation ? 'true' : 'false';
     if (followUp.occupation_change !== undefined) document.getElementById('occupationChange').value = followUp.occupation_change;
     if (followUp.return_time_months) document.getElementById('returnTimeMonths').value = followUp.return_time_months;
@@ -1095,11 +2032,12 @@ function clearFollowUpForm() {
         inputs.forEach(input => {
             if (input.type === 'checkbox' || input.type === 'radio') {
                 input.checked = false;
-            } else if (input.id !== 'followUpWeek') {
+            } else if (input.id !== 'followUpWeek') { // Don't clear the week selector
                 input.value = '';
             }
         });
         
+        // Reset week select styling to normal
         const weekSelect = document.getElementById('followUpWeek');
         if (weekSelect) {
             weekSelect.style.fontWeight = 'normal';
@@ -1108,6 +2046,12 @@ function clearFollowUpForm() {
         
         toggleIncompleteReason();
         toggleReturnTimeField();
+        
+        // Clear TAM results
+        const tamResultsContainer = document.getElementById('tamByFingerResults');
+        if (tamResultsContainer) {
+            tamResultsContainer.innerHTML = '';
+        }
     }
 }
 
@@ -1129,6 +2073,14 @@ function handleNewPatientSubmit(event) {
     patientData.id = generatePatientId();
     patientData.created_by = currentUser;
     patientData.created_at = new Date().toISOString();
+    patientData.audit_trail = [{
+        timestamp: new Date().toISOString(),
+        doctor_id: currentUser.id,
+        doctor_name: currentUser.name,
+        action: 'Creación',
+        section: 'Registro inicial',
+        changes: 'Paciente registrado'
+    }];
     
     patients.push(patientData);
     savePatients();
@@ -1141,6 +2093,7 @@ function handleNewPatientSubmit(event) {
 }
 
 function collectNewPatientData() {
+    // Collect compromised tendons
     const compromisedTendons = [];
     ['fds', 'fdp', 'fpl', 'fcu', 'fcr', 'pl'].forEach(tendon => {
         const checkbox = document.getElementById(`tendon_${tendon}`);
@@ -1149,11 +2102,21 @@ function collectNewPatientData() {
         }
     });
     
+    // Collect associated injuries
     const associatedInjuries = [];
     ['nervioso', 'oseo', 'vascular', 'muscular', 'ligamentaria', 'capsula'].forEach(injury => {
         const checkbox = document.getElementById(`injury_${injury}`);
         if (checkbox && checkbox.checked) {
             associatedInjuries.push(injury.toUpperCase() === 'CAPSULA' ? 'CÁPSULA ARTICULAR' : injury.toUpperCase());
+        }
+    });
+
+    // Collect injured zones (MULTIPLE ZONES SUPPORT)
+    const injuredZones = [];
+    ['1', '2', '3', '4', '5'].forEach(zone => {
+        const checkbox = document.getElementById(`zone_${zone}`);
+        if (checkbox && checkbox.checked) {
+            injuredZones.push(zone === '1' ? 'I' : zone === '2' ? 'II' : zone === '3' ? 'III' : zone === '4' ? 'IV' : 'V');
         }
     });
     
@@ -1168,6 +2131,7 @@ function collectNewPatientData() {
             sex: document.getElementById('sex').value,
             education_level: document.getElementById('educationLevel').value,
             occupation: document.getElementById('occupation').value,
+            origin_country: document.getElementById('originCountry').value,
             birth_city: document.getElementById('birthCity').value,
             address: document.getElementById('address').value,
             department: document.getElementById('department').value,
@@ -1176,6 +2140,7 @@ function collectNewPatientData() {
             email: document.getElementById('email').value,
             eps: document.getElementById('eps').value,
             affiliation_type: document.getElementById('affiliationType').value,
+            laterality: document.getElementById('laterality').value,
             religion: document.getElementById('religion').value,
             companion_name: document.getElementById('companionName').value,
             companion_relation: document.getElementById('companionRelation').value,
@@ -1183,7 +2148,7 @@ function collectNewPatientData() {
         },
         initial_data: {
             compromised_flexor_tendon: compromisedTendons,
-            injured_zone: document.getElementById('injuredZone').value,
+            injured_zones: injuredZones, // CORRECTED: Multiple zones support
             object: document.getElementById('object').value,
             etiology: document.getElementById('etiology').value,
             trauma_mechanism: document.getElementById('traumaMechanism').value,
@@ -1198,9 +2163,9 @@ function collectNewPatientData() {
             days_to_surgery: parseInt(document.getElementById('daysToSurgery').value) || 0,
             surgery_date: document.getElementById('surgeryDate').value,
             bmrc_sensory: {
-                median: parseInt(document.getElementById('bmrcSensoryMedian').value) || 0,
-                ulnar: parseInt(document.getElementById('bmrcSensoryUlnar').value) || 0,
-                radial: parseInt(document.getElementById('bmrcSensoryRadial').value) || 0
+                median: parseFloat(document.getElementById('bmrcSensoryMedian').value) || 0,
+                ulnar: parseFloat(document.getElementById('bmrcSensoryUlnar').value) || 0,
+                radial: parseFloat(document.getElementById('bmrcSensoryRadial').value) || 0
             },
             bmrc_motor: {
                 fds: {
@@ -1241,17 +2206,40 @@ function handleFollowUpSubmit(event) {
             patient.follow_ups = [];
         }
         
+        // Update existing follow-up or add new one
         const existingIndex = patient.follow_ups.findIndex(fu => fu.week === followUpData.week);
         if (existingIndex >= 0) {
             followUpData.modified_by = currentUser;
             followUpData.modified_at = new Date().toISOString();
             patient.follow_ups[existingIndex] = followUpData;
             showAlert(`Control de semana ${followUpData.week} actualizado exitosamente`, 'success');
+            
+            // Add audit entry
+            if (!patient.audit_trail) patient.audit_trail = [];
+            patient.audit_trail.push({
+                timestamp: new Date().toISOString(),
+                doctor_id: currentUser.id,
+                doctor_name: currentUser.name,
+                action: 'Modificación',
+                section: `Control Semana ${followUpData.week}`,
+                changes: 'Control de seguimiento actualizado'
+            });
         } else {
             followUpData.created_by = currentUser;
             followUpData.created_at = new Date().toISOString();
             patient.follow_ups.push(followUpData);
             showAlert(`Control de semana ${followUpData.week} guardado exitosamente`, 'success');
+            
+            // Add audit entry
+            if (!patient.audit_trail) patient.audit_trail = [];
+            patient.audit_trail.push({
+                timestamp: new Date().toISOString(),
+                doctor_id: currentUser.id,
+                doctor_name: currentUser.name,
+                action: 'Creación',
+                section: `Control Semana ${followUpData.week}`,
+                changes: 'Nuevo control de seguimiento'
+            });
         }
         
         savePatients();
@@ -1263,18 +2251,20 @@ function handleFollowUpSubmit(event) {
 function collectFollowUpData() {
     const week = parseInt(document.getElementById('followUpWeek').value);
     
+    // Collect goniometry data
     const goniometry = {};
     appData.fingers.forEach(finger => {
         goniometry[`finger${finger.number}`] = {};
         appData.jointTypes.forEach(joint => {
-            const inputId = `gonio_finger${finger.number}_${joint.replace(' ', '_')}`;
+            const inputId = `gonio_finger${finger.number}_${joint}`;
             const input = document.getElementById(inputId);
             if (input && input.value) {
-                goniometry[`finger${finger.number}`][joint.toLowerCase().replace(' ', '_')] = parseInt(input.value);
+                goniometry[`finger${finger.number}`][joint.toLowerCase()] = parseInt(input.value);
             }
         });
     });
     
+    // Collect QuickDASH responses
     const quickDashResponses = {};
     appData.quickdash_questions.forEach((_, index) => {
         const selectedOption = document.querySelector(`input[name="quickdash_${index}"]:checked`);
@@ -1290,8 +2280,7 @@ function collectFollowUpData() {
         complete_therapies: document.getElementById('completeTherapies').value === 'true',
         incomplete_reason: document.getElementById('incompleteReason').value,
         goniometry: goniometry,
-        tam_result: parseFloat(document.getElementById('tamResult').value) || 0,
-        tam_percentage: parseFloat(document.getElementById('tamPercentage').value) || 0,
+        tam_by_finger: window.currentTAMByFinger || {},
         strickland_result: parseFloat(document.getElementById('stricklandResult').value) || 0,
         strickland_classification: document.getElementById('stricklandClassification').value,
         quickdash_responses: quickDashResponses,
@@ -1301,9 +2290,9 @@ function collectFollowUpData() {
         occupation_change: document.getElementById('occupationChange').value,
         return_time_months: parseInt(document.getElementById('returnTimeMonths').value) || 0,
         bmrc_sensory: {
-            median: parseInt(document.getElementById('followUpBmrcSensoryMedian').value) || 0,
-            ulnar: parseInt(document.getElementById('followUpBmrcSensoryUlnar').value) || 0,
-            radial: parseInt(document.getElementById('followUpBmrcSensoryRadial').value) || 0
+            median: parseFloat(document.getElementById('followUpBmrcSensoryMedian').value) || 0,
+            ulnar: parseFloat(document.getElementById('followUpBmrcSensoryUlnar').value) || 0,
+            radial: parseFloat(document.getElementById('followUpBmrcSensoryRadial').value) || 0
         },
         bmrc_motor: {
             fpl: parseInt(document.getElementById('followUpBmrcMotorFpl').value) || 0,
@@ -1329,8 +2318,8 @@ function collectFollowUpData() {
 function validateNewPatientForm() {
     const requiredFields = [
         'admissionDate', 'evolutionTime', 'fullName', 'documentType', 'documentNumber',
-        'age', 'sex', 'educationLevel', 'occupation', 'birthCity', 'address',
-        'department', 'city', 'phone', 'eps', 'affiliationType', 'injuredZone',
+        'age', 'sex', 'educationLevel', 'occupation', 'originCountry', 'birthCity', 'address',
+        'department', 'city', 'phone', 'eps', 'affiliationType', 'laterality',
         'object', 'etiology', 'traumaMechanism'
     ];
     
@@ -1342,6 +2331,17 @@ function validateNewPatientForm() {
             field?.focus();
             return false;
         }
+    }
+    
+    // Validate that at least one zone is selected
+    const hasZone = ['1', '2', '3', '4', '5'].some(zone => {
+        const checkbox = document.getElementById(`zone_${zone}`);
+        return checkbox && checkbox.checked;
+    });
+    
+    if (!hasZone) {
+        showAlert('Debe seleccionar al menos una zona lesionada', 'error');
+        return false;
     }
     
     return true;
@@ -1361,6 +2361,7 @@ function validateFollowUpForm() {
     return true;
 }
 
+// CORRECCIÓN: Export functionality with automatic download
 function exportData() {
     if (patients.length === 0) {
         showAlert('No hay datos para exportar', 'warning');
@@ -1374,6 +2375,7 @@ function exportData() {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
         const filename = `tendones_flexores_${timestamp}.csv`;
         
+        // Create and trigger automatic download
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -1398,17 +2400,22 @@ function exportData() {
 
 function generateCSVData() {
     const headers = [
-        'ID Paciente', 'Nombre Completo', 'Documento', 'Edad', 'Sexo', 'Ocupación',
-        'Fecha Ingreso', 'Zona Lesionada', 'Objeto', 'Etiología', 'Mecanismo Trauma',
+        'ID Paciente', 'Nombre Completo', 'Documento', 'Edad', 'Sexo', 'Ocupación', 'País Origen', 'Lateralidad',
+        'Fecha Ingreso', 'Zona(s) Lesionada(s)', 'Objeto', 'Etiología', 'Mecanismo Trauma',
         'Fecha Cirugía', 'Días para Cirugía', 'Tendones Comprometidos', 'Técnica Reparación',
         'Lesiones Asociadas', 'Médico Registro', 'Fecha Registro'
     ];
     
+    // Add TAM by finger headers
+    appData.fingers.forEach(finger => {
+        headers.push(`TAM ${finger.name}`, `% TAM ${finger.name}`);
+    });
+    
+    // Add follow-up headers
     appData.follow_up_weeks.forEach(week => {
         headers.push(
             `Control ${week}sem - Fecha`,
             `Control ${week}sem - Protocolo`,
-            `Control ${week}sem - TAM`,
             `Control ${week}sem - Strickland`,
             `Control ${week}sem - Quick DASH`,
             `Control ${week}sem - Discapacidad`,
@@ -1427,8 +2434,10 @@ function generateCSVData() {
             patient.identification.age,
             patient.identification.sex,
             patient.identification.occupation,
+            patient.identification.origin_country || '',
+            patient.identification.laterality || '',
             patient.identification.admission_date,
-            patient.initial_data?.injured_zone || '',
+            patient.initial_data?.injured_zones ? patient.initial_data.injured_zones.join(', ') : '',
             patient.initial_data?.object || '',
             patient.initial_data?.etiology || '',
             patient.initial_data?.trauma_mechanism || '',
@@ -1441,13 +2450,26 @@ function generateCSVData() {
             patient.created_at ? formatDate(patient.created_at) : ''
         ];
         
+        // Add latest TAM by finger data
+        const latestFollowUp = patient.follow_ups && patient.follow_ups.length > 0 
+            ? patient.follow_ups[patient.follow_ups.length - 1] 
+            : null;
+        
+        appData.fingers.forEach(finger => {
+            const tamData = latestFollowUp?.tam_by_finger?.[`finger${finger.number}`];
+            row.push(
+                tamData?.tam || '',
+                tamData?.percentage?.toFixed(1) || ''
+            );
+        });
+        
+        // Add follow-up data
         appData.follow_up_weeks.forEach(week => {
             const followUp = patient.follow_ups?.find(fu => fu.week === week);
             if (followUp) {
                 row.push(
                     followUp.date || '',
                     followUp.protocol || '',
-                    followUp.tam_result || '',
                     followUp.strickland_result || '',
                     followUp.quick_dash_score || '',
                     followUp.dash_disability_grade || '',
@@ -1455,7 +2477,7 @@ function generateCSVData() {
                     followUp.created_by?.name || followUp.modified_by?.name || ''
                 );
             } else {
-                row.push('', '', '', '', '', '', '', '');
+                row.push('', '', '', '', '', '', '');
             }
         });
         
@@ -1503,6 +2525,7 @@ function formatDateTime(dateString) {
 function showAlert(message, type = 'info', duration = 5000) {
     console.log(`Alert: ${type} - ${message}`);
     
+    // Remove existing alerts
     const existingAlerts = document.querySelectorAll('.alert');
     existingAlerts.forEach(alert => alert.remove());
     
@@ -1510,11 +2533,13 @@ function showAlert(message, type = 'info', duration = 5000) {
     alert.className = `alert ${type}`;
     alert.textContent = message;
     
+    // Insert at top of container
     const container = document.querySelector('.container');
     if (container) {
         container.insertBefore(alert, container.firstChild);
     }
     
+    // Auto remove after duration
     setTimeout(() => {
         if (alert.parentNode) {
             alert.remove();
@@ -1538,24 +2563,35 @@ function debounce(func, wait) {
 function setupEventListeners() {
     console.log('Configurando event listeners...');
     
+    // New patient form
     const newPatientForm = document.getElementById('newPatientForm');
     if (newPatientForm) {
         newPatientForm.addEventListener('submit', handleNewPatientSubmit);
         console.log('Form listener agregado: newPatientForm');
     }
     
+    // Follow-up form
     const followUpForm = document.getElementById('followUpForm');
     if (followUpForm) {
         followUpForm.addEventListener('submit', handleFollowUpSubmit);
         console.log('Form listener agregado: followUpForm');
     }
     
+    // Doctor login form
     const doctorLoginForm = document.getElementById('doctorLoginForm');
     if (doctorLoginForm) {
         doctorLoginForm.addEventListener('submit', handleDoctorLogin);
         console.log('Form listener agregado: doctorLoginForm');
     }
     
+    // Edit form
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', handleEditSubmit);
+        console.log('Form listener agregado: editForm');
+    }
+    
+    // Search functionality
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(searchPatients, 300));
@@ -1567,9 +2603,15 @@ function setupEventListeners() {
         followUpSearchInput.addEventListener('input', debounce(searchPatientsForFollowUp, 300));
         console.log('Search listener agregado: followUpSearchInput');
     }
+    
+    const clinicalHistorySearchInput = document.getElementById('clinicalHistorySearch');
+    if (clinicalHistorySearchInput) {
+        clinicalHistorySearchInput.addEventListener('input', debounce(searchClinicalHistories, 300));
+        console.log('Search listener agregado: clinicalHistorySearch');
+    }
 }
 
-// CORRECCIÓN CRÍTICA: Hacer funciones globalmente disponibles inmediatamente
+// Make ALL functions globally available IMMEDIATELY
 window.showSection = showSection;
 window.showProtocol = showProtocol;
 window.startExercise = startExercise;
@@ -1579,29 +2621,46 @@ window.resetTimer = resetTimer;
 window.closeExerciseModal = closeExerciseModal;
 window.searchPatients = searchPatients;
 window.searchPatientsForFollowUp = searchPatientsForFollowUp;
+window.searchClinicalHistories = searchClinicalHistories;
 window.showControlSelection = showControlSelection;
+window.showClinicalHistories = showClinicalHistories;
+window.showIndividualClinicalHistory = showIndividualClinicalHistory;
+window.copyCompleteHistory = copyCompleteHistory;
 window.exportData = exportData;
-window.showPatientHistory = showPatientHistory;
 window.selectPatientForFollowUp = selectPatientForFollowUp;
 window.cancelFollowUp = cancelFollowUp;
-window.showPatientEditDialog = showPatientEditDialog;
 window.calculateDaysToSurgery = calculateDaysToSurgery;
-window.calculateTAMAndStrickland = calculateTAMAndStrickland;
+window.calculateTAMByFingerAndStrickland = calculateTAMByFingerAndStrickland;
 window.calculateQuickDash = calculateQuickDash;
 window.toggleIncompleteReason = toggleIncompleteReason;
 window.toggleReturnTimeField = toggleReturnTimeField;
 window.calculateDynamometerDifference = calculateDynamometerDifference;
 window.loadExistingFollowUp = loadExistingFollowUp;
+window.editSection = editSection;
+window.editFollowUp = editFollowUp;
+window.closeEditModal = closeEditModal;
+window.confirmEdit = confirmEdit;
+window.cancelEdit = cancelEdit;
 window.logout = logout;
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Aplicación iniciando...');
     
-    loadPatients();
-    initializeDateFields();
-    setupEventListeners();
-    showSection('accessScreen');
-    
-    console.log('Aplicación iniciada correctamente - Sistema limpio sin datos de ejemplo');
+    try {
+        // Load saved data
+        loadPatients();
+        
+        // Initialize UI
+        initializeDateFields();
+        setupEventListeners();
+        
+        // Show access screen
+        showSection('accessScreen');
+        
+        console.log('Aplicación iniciada correctamente');
+    } catch (error) {
+        console.error('Error inicializando aplicación:', error);
+        showAlert('Error iniciando aplicación', 'error');
+    }
 });

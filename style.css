@@ -777,6 +777,15 @@ select.form-control {
     font-size: var(--font-size-4xl);
 }
 
+.btn--info {
+    background: var(--color-info);
+    color: var(--color-btn-primary-text);
+}
+
+.btn--info:hover {
+    background: var(--color-slate-500);
+}
+
 /* Login Container */
 .login-container {
     display: flex;
@@ -816,6 +825,355 @@ select.form-control {
 .app-header p {
     color: var(--color-text-secondary);
     margin: 0;
+}
+
+/* Tooltips */
+.tooltip {
+    cursor: help;
+    color: var(--color-primary);
+    margin-left: var(--space-4);
+    font-size: var(--font-size-sm);
+    display: inline-block;
+    position: relative;
+}
+
+.tooltip:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: var(--color-charcoal-800);
+    color: var(--color-cream-50);
+    padding: var(--space-8);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: var(--shadow-md);
+    max-width: 300px;
+    white-space: normal;
+    width: max-content;
+}
+
+.tooltip:hover::before {
+    content: '';
+    position: absolute;
+    border: 5px solid transparent;
+    border-top-color: var(--color-charcoal-800);
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.breadcrumb-link {
+    color: var(--color-primary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.breadcrumb-link:hover {
+    color: var(--color-primary-hover);
+}
+
+.breadcrumb-separator {
+    color: var(--color-text-secondary);
+}
+
+.breadcrumb-current {
+    font-weight: var(--font-weight-medium);
+}
+
+/* Clinical Histories List */
+.clinical-histories-list {
+    display: grid;
+    gap: var(--space-16);
+}
+
+.clinical-history-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-20);
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.clinical-history-item:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.clinical-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-12);
+}
+
+.clinical-history-patient-name {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.clinical-history-stats {
+    display: flex;
+    gap: var(--space-12);
+    font-size: var(--font-size-sm);
+}
+
+.clinical-history-stat {
+    background: var(--color-bg-1);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+}
+
+.clinical-history-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-12);
+    margin-bottom: var(--space-16);
+}
+
+.clinical-history-detail {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.clinical-history-detail strong {
+    color: var(--color-text);
+    font-weight: var(--font-weight-medium);
+}
+
+.clinical-history-actions {
+    display: flex;
+    gap: var(--space-8);
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-card-border-inner);
+    padding-top: var(--space-12);
+    margin-top: var(--space-16);
+}
+
+/* Individual Clinical History */
+.individual-history-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.clinical-history-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-24);
+    overflow: hidden;
+}
+
+.clinical-history-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-16) var(--space-20);
+    background: var(--color-bg-2);
+    border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.clinical-history-section-header h3 {
+    margin: 0;
+    color: var(--color-text);
+    flex: 1;
+}
+
+.clinical-history-section-body {
+    padding: var(--space-20);
+}
+
+.clinical-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-16);
+}
+
+.clinical-data-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.clinical-data-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+}
+
+.clinical-data-value {
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+}
+
+/* TAM by Finger Results */
+.tam-by-finger-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-16);
+    margin-bottom: var(--space-24);
+}
+
+.tam-finger-card {
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-base);
+    padding: var(--space-16);
+    text-align: center;
+}
+
+.tam-finger-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    margin-bottom: var(--space-8);
+}
+
+.tam-finger-score {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--space-4);
+}
+
+.tam-finger-percentage {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.tam-finger-classification {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-8);
+}
+
+.tam-finger-classification.excellent {
+    background: rgba(var(--color-success-rgb), var(--status-bg-opacity));
+    color: var(--color-success);
+}
+
+.tam-finger-classification.good {
+    background: var(--color-bg-1);
+    color: var(--color-primary);
+}
+
+.tam-finger-classification.regular {
+    background: rgba(var(--color-warning-rgb), var(--status-bg-opacity));
+    color: var(--color-warning);
+}
+
+.tam-finger-classification.poor {
+    background: rgba(var(--color-error-rgb), var(--status-bg-opacity));
+    color: var(--color-error);
+}
+
+/* Timeline Evolution */
+.evolution-timeline {
+    position: relative;
+    padding-left: var(--space-32);
+}
+
+.evolution-timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
+    border-radius: var(--radius-sm);
+}
+
+.evolution-item {
+    position: relative;
+    margin-bottom: var(--space-24);
+    padding-left: var(--space-24);
+}
+
+.evolution-item::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 12px;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    border: 2px solid var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.evolution-item.initial::before {
+    background-color: var(--color-success);
+}
+
+.evolution-content {
+    background: var(--color-surface);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-base);
+    padding: var(--space-16);
+}
+
+.evolution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.evolution-header h4 {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.evolution-date {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Audit Trail */
+.audit-trail {
+    background: var(--color-bg-8);
+    border-radius: var(--radius-base);
+    padding: var(--space-12);
+    margin-top: var(--space-16);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.audit-entry {
+    padding: var(--space-6) 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.audit-entry:last-child {
+    border-bottom: none;
+}
+
+.audit-timestamp {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
 }
 
 /* Protocol Tabs */
@@ -861,6 +1219,30 @@ select.form-control {
     margin-bottom: var(--space-16);
     padding-bottom: var(--space-8);
     border-bottom: 1px solid var(--color-border);
+}
+
+.protocol-phase {
+    margin-bottom: var(--space-24);
+}
+
+.protocol-phase-header {
+    background: var(--color-bg-1);
+    padding: var(--space-12) var(--space-16);
+    border-radius: var(--radius-base);
+    margin-bottom: var(--space-16);
+}
+
+.protocol-phase-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    margin: 0 0 var(--space-8) 0;
+}
+
+.protocol-phase-objective {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    margin: 0;
 }
 
 .exercise-list {
@@ -1327,97 +1709,6 @@ select.form-control {
     border-top: 1px solid var(--color-border);
 }
 
-/* History styles */
-.history-content {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.history-patient-info {
-    background-color: var(--color-bg-2);
-    padding: var(--space-20);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-24);
-}
-
-.history-timeline {
-    position: relative;
-    padding-left: var(--space-32);
-}
-
-.history-timeline::before {
-    content: '';
-    position: absolute;
-    left: 16px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: var(--color-border);
-}
-
-.timeline-item {
-    position: relative;
-    margin-bottom: var(--space-24);
-    padding-left: var(--space-24);
-}
-
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 10px;
-    width: 12px;
-    height: 12px;
-    background-color: var(--color-primary);
-    border-radius: 50%;
-    border: 2px solid var(--color-surface);
-}
-
-.timeline-item.initial::before {
-    background-color: var(--color-success);
-}
-
-.timeline-content {
-    background-color: var(--color-surface);
-    padding: var(--space-16);
-    border-radius: var(--radius-base);
-    border: 1px solid var(--color-card-border);
-}
-
-.timeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-12);
-    padding-bottom: var(--space-12);
-    border-bottom: 1px solid var(--color-card-border-inner);
-}
-
-.timeline-header h4 {
-    margin: 0;
-}
-
-.timeline-date {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-}
-
-.timeline-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-12);
-}
-
-.timeline-detail {
-    font-size: var(--font-size-sm);
-}
-
-.timeline-detail strong {
-    color: var(--color-text);
-    display: block;
-    margin-bottom: var(--space-2);
-}
-
 /* Exercise Timer Modal */
 .exercise-modal {
     max-width: 500px;
@@ -1512,6 +1803,11 @@ select.form-control {
     box-shadow: var(--shadow-lg);
     max-height: 80vh;
     overflow-y: auto;
+}
+
+.edit-modal {
+    max-width: 800px;
+    width: 95%;
 }
 
 .modal-content h3 {
@@ -1735,6 +2031,18 @@ select.form-control {
         width: 12px;
         height: 12px;
     }
+    
+    .tam-by-finger-results {
+        grid-template-columns: 1fr;
+    }
+    
+    .clinical-data-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .breadcrumb {
+        flex-wrap: wrap;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1767,6 +2075,16 @@ select.form-control {
     .week-selection .form-control {
         min-width: auto;
         width: 100%;
+    }
+    
+    .clinical-history-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .clinical-history-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-12);
     }
 }
 

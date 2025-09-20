@@ -100,6 +100,8 @@
                                 <li>Mantener seca y limpia</li>
                                 <li>No remover sin indicación médica</li>
                                 <li>Revisar ajuste diariamente</li>
+                                <li>Reportar dolor, hinchazón o cambios de color</li>
+                                <li>No mojarse durante el baño</li>
                             </ul>
                         </div>
                         
@@ -108,7 +110,20 @@
                             <ul class="care-list">
                                 <li>Mantener área limpia y seca</li>
                                 <li>Masaje cicatricial posterior a 3 semanas</li>
-                                <li>Protección solar</li>
+                                <li>Protección solar durante 6 meses</li>
+                                <li>Aplicar crema hidratante suave</li>
+                                <li>Evitar exposición a productos químicos</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="care-subsection">
+                            <h5>Signos de Alerta</h5>
+                            <ul class="care-list">
+                                <li>Aumento del dolor o inflamación</li>
+                                <li>Enrojecimiento o calor en la herida</li>
+                                <li>Secreción con mal olor</li>
+                                <li>Fiebre mayor a 38°C</li>
+                                <li>Pérdida súbita de movimiento</li>
                             </ul>
                         </div>
                     </div>
@@ -160,6 +175,7 @@
             <div class="action-buttons">
                 <button class="btn btn--primary" onclick="showSection('nuevoPatient')">Nuevo Paciente</button>
                 <button class="btn btn--secondary" onclick="showControlSelection()">Control de Seguimiento</button>
+                <button class="btn btn--info" onclick="showClinicalHistories()">Historias Clínicas Completas</button>
                 <button class="btn btn--outline" onclick="exportData()">Exportar Datos CSV</button>
                 <button class="btn btn--outline" onclick="logout()">Cerrar Sesión</button>
             </div>
@@ -222,6 +238,52 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Historias Clínicas Completas -->
+        <section id="clinicalHistories" class="section">
+            <div class="section-header">
+                <h2>Historias Clínicas Completas</h2>
+                <nav class="breadcrumb">
+                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
+                    <span class="breadcrumb-separator">></span> 
+                    <span class="breadcrumb-current">Historias Clínicas</span>
+                </nav>
+                <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
+            </div>
+
+            <div class="search-section">
+                <div class="search-form">
+                    <input type="text" id="clinicalHistorySearch" class="form-control" placeholder="Buscar paciente por nombre o documento">
+                    <button class="btn btn--primary" onclick="searchClinicalHistories()">Buscar</button>
+                </div>
+            </div>
+
+            <div id="clinicalHistoriesList" class="clinical-histories-list">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Vista Individual de Historia Clínica -->
+        <section id="individualClinicalHistory" class="section">
+            <div class="section-header">
+                <h2 id="clinicalHistoryPatientName">Historia Clínica</h2>
+                <nav class="breadcrumb">
+                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
+                    <span class="breadcrumb-separator">></span> 
+                    <span onclick="showSection('clinicalHistories')" class="breadcrumb-link">Historias Clínicas</span>
+                    <span class="breadcrumb-separator">></span> 
+                    <span class="breadcrumb-current">Vista Individual</span>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn btn--primary" onclick="copyCompleteHistory()">Copiar Historia Clínica Completa</button>
+                    <button class="btn btn--outline" onclick="showSection('clinicalHistories')">Volver a Lista</button>
+                </div>
+            </div>
+
+            <div id="individualHistoryContent" class="individual-history-content">
+                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
@@ -297,6 +359,10 @@
                                 <input type="text" id="occupation" class="form-control" required>
                             </div>
                             <div class="form-group">
+                                <label class="form-label">País de Origen</label>
+                                <input type="text" id="originCountry" class="form-control" required>
+                            </div>
+                            <div class="form-group">
                                 <label class="form-label">Ciudad de Nacimiento</label>
                                 <input type="text" id="birthCity" class="form-control" required>
                             </div>
@@ -335,6 +401,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label class="form-label">Lateralidad</label>
+                                <select id="laterality" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Derecho">Derecho</option>
+                                    <option value="Izquierdo">Izquierdo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label class="form-label">Religión</label>
                                 <input type="text" id="religion" class="form-control">
                             </div>
@@ -361,16 +435,15 @@
                     </div>
                     <div class="card__body">
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Zona Lesionada</label>
-                                <select id="injuredZone" class="form-control" required>
-                                    <option value="">Seleccionar</option>
-                                    <option value="I">Zona I</option>
-                                    <option value="II">Zona II</option>
-                                    <option value="III">Zona III</option>
-                                    <option value="IV">Zona IV</option>
-                                    <option value="V">Zona V</option>
-                                </select>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Zona(s) Lesionada(s) - Seleccionar todas las que apliquen</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="zone_1" value="I"> Zona I</label>
+                                    <label><input type="checkbox" id="zone_2" value="II"> Zona II</label>
+                                    <label><input type="checkbox" id="zone_3" value="III"> Zona III</label>
+                                    <label><input type="checkbox" id="zone_4" value="IV"> Zona IV</label>
+                                    <label><input type="checkbox" id="zone_5" value="V"> Zona V</label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Objeto</label>
@@ -473,47 +546,50 @@
                         <h3>3. Escalas de Evaluación Inicial</h3>
                     </div>
                     <div class="card__body">
-                        <h4>BMRC Scale - Sensitivo</h4>
+                        <h4>BMRC Scale - Sensitivo <span class="tooltip" title="Escala S0-S4. S0=Sin sensación, S1=Dolor profundo, S2=Dolor y tacto, S3=Discriminación 15-20mm, S4=Discriminación <7mm">ℹ️</span></h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Mediano</label>
                                 <select id="bmrcSensoryMedian" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Cubital</label>
                                 <select id="bmrcSensoryUlnar" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Radial</label>
                                 <select id="bmrcSensoryRadial" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                         </div>
 
-                        <h4>BMRC Scale - Motor</h4>
+                        <h4>BMRC Scale - Motor <span class="tooltip" title="Escala M0-M5. M0=Sin contracción, M1=Contracción sin movimiento, M2=Movimiento sin gravedad, M3=Contra gravedad sin resistencia, M4=Con resistencia parcial, M5=Fuerza normal">ℹ️</span></h4>
                         <div class="bmrc-motor-section">
                             <h5>FDS por Dedo</h5>
                             <div class="form-grid">
@@ -521,48 +597,48 @@
                                     <label class="form-label">FDS Dedo 2</label>
                                     <select id="bmrcMotorFds2" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDS Dedo 3</label>
                                     <select id="bmrcMotorFds3" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDS Dedo 4</label>
                                     <select id="bmrcMotorFds4" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDS Dedo 5</label>
                                     <select id="bmrcMotorFds5" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                             </div>
@@ -573,48 +649,48 @@
                                     <label class="form-label">FDP Dedo 2</label>
                                     <select id="bmrcMotorFdp2" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDP Dedo 3</label>
                                     <select id="bmrcMotorFdp3" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDP Dedo 4</label>
                                     <select id="bmrcMotorFdp4" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FDP Dedo 5</label>
                                     <select id="bmrcMotorFdp5" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                             </div>
@@ -625,48 +701,48 @@
                                     <label class="form-label">FPL</label>
                                     <select id="bmrcMotorFpl" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FCU</label>
                                     <select id="bmrcMotorFcu" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">FCR</label>
                                     <select id="bmrcMotorFcr" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">PL</label>
                                     <select id="bmrcMotorPl" class="form-control">
                                         <option value="">Seleccionar</option>
-                                        <option value="0">0 - Sin contracción detectable</option>
-                                        <option value="1">1 - Contracción visible sin movimiento</option>
-                                        <option value="2">2 - Movimiento sin gravedad</option>
-                                        <option value="3">3 - Movimiento contra gravedad</option>
-                                        <option value="4">4 - Movimiento con resistencia</option>
-                                        <option value="5">5 - Fuerza normal</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
                                     </select>
                                 </div>
                             </div>
@@ -737,22 +813,19 @@
                             </div>
                         </div>
 
-                        <!-- Goniometría con cálculos automáticos -->
-                        <h4>Goniometría - Mediciones por Dedo</h4>
+                        <!-- Goniometría con cálculos automáticos TAM por dedo -->
+                        <h4>Goniometría - Mediciones por Dedo <span class="tooltip" title="Medir grados de flexión en MCF, IFP, IFD de cada dedo">ℹ️</span></h4>
                         <div id="goniometryMeasurements" class="goniometry-grid">
                             <!-- Se genera dinámicamente -->
                         </div>
                         
                         <div class="calculation-results">
+                            <h4>Resultados TAM por Dedo</h4>
+                            <div id="tamByFingerResults" class="tam-by-finger-results">
+                                <!-- Se genera dinámicamente -->
+                            </div>
+                            
                             <div class="form-grid">
-                                <div class="form-group">
-                                    <label class="form-label">TAM (Total Active Motion)</label>
-                                    <input type="number" id="tamResult" class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Porcentaje TAM (%)</label>
-                                    <input type="number" id="tamPercentage" class="form-control" readonly>
-                                </div>
                                 <div class="form-group">
                                     <label class="form-label">Strickland (%)</label>
                                     <input type="number" id="stricklandResult" class="form-control" readonly>
@@ -765,7 +838,7 @@
                         </div>
 
                         <!-- Quick DASH Completo -->
-                        <h4>Cuestionario QuickDASH</h4>
+                        <h4>Cuestionario QuickDASH <span class="tooltip" title="Cuestionario de 11 preguntas. Escala 1-5 cada pregunta. Se calcula automáticamente el puntaje total y grado de discapacidad">ℹ️</span></h4>
                         <div id="quickDashQuestions" class="quickdash-section">
                             <!-- Se genera dinámicamente -->
                         </div>
@@ -803,95 +876,98 @@
                         </div>
 
                         <!-- Escalas de Evaluación en el Control -->
-                        <h4>BMRC Scale - Sensitivo</h4>
+                        <h4>BMRC Scale - Sensitivo <span class="tooltip" title="Escala S0-S4. S0=Sin sensación, S1=Dolor profundo, S2=Dolor y tacto, S3=Discriminación 15-20mm, S4=Discriminación <7mm">ℹ️</span></h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Mediano</label>
                                 <select id="followUpBmrcSensoryMedian" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Cubital</label>
                                 <select id="followUpBmrcSensoryUlnar" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Radial</label>
                                 <select id="followUpBmrcSensoryRadial" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor (profundo)</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobreacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobreacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática < 7 mm</option>
                                 </select>
                             </div>
                         </div>
 
                         <!-- BMRC Scale Motor -->
-                        <h4>BMRC Scale - Motor</h4>
+                        <h4>BMRC Scale - Motor <span class="tooltip" title="Escala M0-M5. M0=Sin contracción, M1=Contracción sin movimiento, M2=Movimiento sin gravedad, M3=Contra gravedad sin resistencia, M4=Con resistencia parcial, M5=Fuerza normal">ℹ️</span></h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">FPL</label>
                                 <select id="followUpBmrcMotorFpl" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">FCU</label>
                                 <select id="followUpBmrcMotorFcu" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">FCR</label>
                                 <select id="followUpBmrcMotorFcr" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">PL</label>
                                 <select id="followUpBmrcMotorPl" class="form-control">
                                     <option value="">Seleccionar</option>
-                                    <option value="0">0 - Sin contracción detectable</option>
-                                    <option value="1">1 - Contracción visible sin movimiento</option>
-                                    <option value="2">2 - Movimiento sin gravedad</option>
-                                    <option value="3">3 - Movimiento contra gravedad</option>
-                                    <option value="4">4 - Movimiento con resistencia</option>
-                                    <option value="5">5 - Fuerza normal</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
                                 </select>
                             </div>
                         </div>
@@ -914,7 +990,7 @@
                         </div>
 
                         <!-- Distancia Uña/Palma -->
-                        <h4>Distancia Uña/Palma (mm)</h4>
+                        <h4>Distancia Uña/Palma (mm) <span class="tooltip" title="Medir en mm desde la punta del dedo hasta la palma con flexión máxima">ℹ️</span></h4>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Dedo 2</label>
@@ -943,20 +1019,6 @@
             </form>
         </section>
 
-        <!-- Historial del Paciente -->
-        <section id="patientHistory" class="section">
-            <div class="section-header">
-                <h2>Historial del Paciente</h2>
-                <div class="header-actions">
-                    <button class="btn btn--primary" onclick="showPatientEditDialog()" id="editPatientBtn">Modificar Datos</button>
-                    <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
-                </div>
-            </div>
-            <div id="historyContent" class="history-content">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </section>
-
         <!-- Exercise Timer Modal -->
         <div id="exerciseTimerModal" class="modal hidden">
             <div class="modal-content exercise-modal">
@@ -975,6 +1037,41 @@
                             <button id="timerPauseBtn" class="btn btn--secondary hidden" onclick="pauseTimer()">Pausar</button>
                             <button id="timerResetBtn" class="btn btn--outline" onclick="resetTimer()">Reiniciar</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal hidden">
+            <div class="modal-content edit-modal">
+                <div class="modal-header">
+                    <h3 id="editModalTitle">Editar Información</h3>
+                    <button class="btn btn--outline btn--sm" onclick="closeEditModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div id="editFormContent"></div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--primary">Guardar Cambios</button>
+                            <button type="button" class="btn btn--secondary" onclick="closeEditModal()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmar Cambios</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmationMessage">¿Está seguro que desea guardar estos cambios?</p>
+                    <div class="modal-actions">
+                        <button class="btn btn--primary" onclick="confirmEdit()">Confirmar</button>
+                        <button class="btn btn--secondary" onclick="cancelEdit()">Cancelar</button>
                     </div>
                 </div>
             </div>
