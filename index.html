@@ -33,17 +33,18 @@
         /* Firebase status indicator */
         .firebase-status {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             background: #4CAF50;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+            padding: 12px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.2);
         }
         
         .firebase-status.error {
@@ -59,6 +60,168 @@
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
+        }
+        
+        /* Enhanced form styling for better visibility */
+        .form-control {
+            padding: 12px 16px !important;
+            border: 2px solid #ddd !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .form-control:focus {
+            border-color: #2c5aa0 !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1) !important;
+        }
+        
+        .btn {
+            padding: 12px 24px !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+            border: 2px solid transparent !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .btn--primary {
+            background: #2c5aa0 !important;
+            color: white !important;
+            border-color: #2c5aa0 !important;
+        }
+        
+        .btn--primary:hover {
+            background: #1e4080 !important;
+            border-color: #1e4080 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3) !important;
+        }
+        
+        .btn--secondary {
+            background: #6c757d !important;
+            color: white !important;
+            border-color: #6c757d !important;
+        }
+        
+        .btn--secondary:hover {
+            background: #5a6268 !important;
+            border-color: #5a6268 !important;
+        }
+        
+        .btn--outline {
+            background: transparent !important;
+            color: #2c5aa0 !important;
+            border-color: #2c5aa0 !important;
+        }
+        
+        .btn--outline:hover {
+            background: #2c5aa0 !important;
+            color: white !important;
+        }
+        
+        .btn--info {
+            background: #17a2b8 !important;
+            color: white !important;
+            border-color: #17a2b8 !important;
+        }
+        
+        .btn--success {
+            background: #28a745 !important;
+            color: white !important;
+            border-color: #28a745 !important;
+        }
+        
+        /* Cards with better borders */
+        .card {
+            border: 2px solid #e9ecef !important;
+            border-radius: 12px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            margin-bottom: 24px !important;
+        }
+        
+        .card-header {
+            background: #f8f9fa !important;
+            border-bottom: 2px solid #e9ecef !important;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 18px 24px !important;
+        }
+        
+        .card-body {
+            padding: 24px !important;
+        }
+        
+        /* Dashboard improvements */
+        .dashboard-stats {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+            gap: 20px !important;
+            margin: 24px 0 !important;
+        }
+        
+        .stat-card {
+            text-align: center !important;
+            transition: transform 0.3s ease !important;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px) !important;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem !important;
+            font-weight: bold !important;
+            color: #2c5aa0 !important;
+        }
+        
+        /* Action buttons grid */
+        .action-buttons {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+            gap: 16px !important;
+            margin: 30px 0 !important;
+        }
+        
+        /* Schedule card improvements */
+        .schedule-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        }
+        
+        .postop-timeline {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+            gap: 20px !important;
+        }
+        
+        .postop-item {
+            background: white !important;
+            border: 2px solid #dee2e6 !important;
+            border-radius: 10px !important;
+            padding: 20px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .postop-item:hover {
+            border-color: #2c5aa0 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(44, 90, 160, 0.1) !important;
+        }
+        
+        .postop-week {
+            color: #2c5aa0 !important;
+            margin-bottom: 12px !important;
+            border-bottom: 2px solid #e9ecef !important;
+            padding-bottom: 8px !important;
+        }
+        
+        .postop-activities ul {
+            margin: 0 !important;
+            padding-left: 20px !important;
+        }
+        
+        .postop-activities li {
+            margin-bottom: 8px !important;
+            line-height: 1.5 !important;
         }
         
         /* Loading overlay */
@@ -82,10 +245,10 @@
         }
         
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2c5aa0;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2c5aa0;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -93,6 +256,28 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .action-buttons {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .postop-timeline {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .firebase-status {
+                top: 10px !important;
+                right: 10px !important;
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+            }
         }
     </style>
 </head>
@@ -281,6 +466,66 @@
                 <button class="btn btn--outline" onclick="exportData()">Exportar Datos CSV</button>
                 <button class="btn btn--outline" onclick="logout()">Cerrar Sesión</button>
             </div>
+
+            <!-- Cronograma de Controles Postoperatorios -->
+            <div class="card schedule-card">
+                <div class="card-header">
+                    <h3>Cronograma de Controles Postoperatorios</h3>
+                </div>
+                <div class="card-body">
+                    <div class="postop-schedule">
+                        <div class="postop-timeline">
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>1-2 Semanas Post-cirugía</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Primera consulta - Retiro de suturas, evaluación de cicatrización</li>
+                                        <li>Control inicial</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>3-4 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Inicio de movilización activa asistida</li>
+                                        <li>Cambio de fase</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>6 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Evaluación de ROM, inicio de fortalecimiento</li>
+                                        <li>Cambio de fase</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>12 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Evaluación final, alta médica</li>
+                                        <li>Control final</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Sección Nuevo Paciente -->
@@ -296,21 +541,21 @@
             </div>
 
             <form id="newPatientForm" class="patient-form">
-                <!-- Identificación del Paciente -->
+                <!-- Sección 1: Identificación -->
                 <div class="card">
                     <div class="card-header">
-                        <h3>Identificación del Paciente</h3>
+                        <h3>1. Identificación del Paciente</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Fecha de Ingreso</label>
-                                <input type="date" id="admissionDate" class="form-control" required>
+                                <input type="date" id="admissionDate" class="form-control" required onchange="calculateDaysToSurgery()">
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Tiempo de Evolución (Horas)</label>
-                                <input type="number" id="evolutionTime" class="form-control" required>
+                                <label class="form-label">Tiempo de Evolución hasta el ingreso (Horas)</label>
+                                <input type="number" id="evolutionTime" class="form-control" min="0" required>
                             </div>
 
                             <div class="form-group col-span-2">
@@ -336,7 +581,7 @@
 
                             <div class="form-group">
                                 <label class="form-label">Edad</label>
-                                <input type="number" id="age" class="form-control" required>
+                                <input type="number" id="age" class="form-control" min="0" max="120" required>
                             </div>
 
                             <div class="form-group">
@@ -364,7 +609,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Ocupación</label>
+                                <label class="form-label">Ocupación Actual</label>
                                 <input type="text" id="occupation" class="form-control" required>
                             </div>
 
@@ -394,12 +639,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Teléfono</label>
+                                <label class="form-label">Teléfono de Contacto</label>
                                 <input type="tel" id="phone" class="form-control" required>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Email</label>
+                                <label class="form-label">Correo Electrónico</label>
                                 <input type="email" id="email" class="form-control">
                             </div>
 
@@ -447,17 +692,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Acompañante</label>
+                                <label class="form-label">Nombre del Acompañante</label>
                                 <input type="text" id="companionName" class="form-control">
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Relación Acompañante</label>
+                                <label class="form-label">Relación con el Acompañante</label>
                                 <input type="text" id="companionRelation" class="form-control">
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Teléfono Acompañante</label>
+                                <label class="form-label">Teléfono del Acompañante</label>
                                 <input type="tel" id="companionPhone" class="form-control">
                             </div>
 
@@ -469,10 +714,10 @@
                     </div>
                 </div>
 
-                <!-- Datos del Trauma -->
+                <!-- Sección 2: Datos Iniciales -->
                 <div class="card">
                     <div class="card-header">
-                        <h3>Datos del Trauma</h3>
+                        <h3>2. Datos Iniciales del Trauma</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-grid">
@@ -486,7 +731,7 @@
                             </div>
 
                             <div class="form-group col-span-2">
-                                <label class="form-label">Zonas Lesionadas</label>
+                                <label class="form-label">Zonas Lesionadas - Seleccionar todas las que apliquen</label>
                                 <div class="checkbox-group">
                                     <label><input type="checkbox" id="zone1" value="I"> Zona I</label>
                                     <label><input type="checkbox" id="zone2" value="II"> Zona II</label>
@@ -541,12 +786,12 @@
                             </div>
 
                             <div class="form-group col-span-2">
-                                <label class="form-label">Descripción Tendones</label>
+                                <label class="form-label">Descripción Tendón Flexor Comprometido</label>
                                 <textarea id="tendonDescription" class="form-control" rows="3"></textarea>
                             </div>
 
                             <div class="form-group col-span-2">
-                                <label class="form-label">Lesiones Asociadas</label>
+                                <label class="form-label">Lesión Asociada General (Seleccionar todas las que apliquen)</label>
                                 <div class="checkbox-group">
                                     <label><input type="checkbox" id="injurynervioso" value="NERVIOSO"> NERVIOSO</label>
                                     <label><input type="checkbox" id="injuryoseo" value="ÓSEO"> ÓSEO</label>
@@ -558,7 +803,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Lesión Específica</label>
+                                <label class="form-label">Lesión Asociada Específica</label>
                                 <input type="text" id="specificAssociatedInjury" class="form-control">
                             </div>
 
@@ -568,7 +813,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Tipo de Reparación</label>
+                                <label class="form-label">Reparación</label>
                                 <select id="repairType" class="form-control">
                                     <option value="">Seleccionar</option>
                                     <option value="CENTRAL">CENTRAL</option>
@@ -578,7 +823,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Técnica de Reparación</label>
+                                <label class="form-label">Técnica Reparación</label>
                                 <input type="text" id="repairTechnique" class="form-control">
                             </div>
 
@@ -592,20 +837,231 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Fecha Quirúrgica</label>
-                                <input type="date" id="surgeryDate" class="form-control" onchange="calculateDaysToSurgery()">
+                                <label class="form-label">Días para Cirugía (Calculado automáticamente)</label>
+                                <input type="number" id="daysToSurgery" class="form-control" readonly>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Días para Cirugía</label>
-                                <input type="number" id="daysToSurgery" class="form-control" readonly>
+                                <label class="form-label">Fecha Quirúrgica</label>
+                                <input type="date" id="surgeryDate" class="form-control" onchange="calculateDaysToSurgery()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Escalas de Evaluación -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>3. Escalas de Evaluación Inicial</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4>BMRC Scale - Sensitivo <span class="tooltip" title="Escala S0-S4. S0:Sin sensación, S1:Dolor profundo, S2:Dolor y tacto, S3:Discriminación 15-20mm, S4:Discriminación <7mm">ℹ️</span></h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Mediano</label>
+                                <select id="bmrcSensoryMedian" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cubital</label>
+                                <select id="bmrcSensoryUlnar" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Radial</label>
+                                <select id="bmrcSensoryRadial" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h4>BMRC Scale - Motor <span class="tooltip" title="Escala M0-M5. M0:Sin contracción, M1:Contracción sin movimiento, M2:Movimiento sin gravedad, M3:Contra gravedad sin resistencia, M4:Con resistencia parcial, M5:Fuerza normal">ℹ️</span></h4>
+                        
+                        <div class="bmrc-motor-section">
+                            <h5>FDS por Dedo</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 2</label>
+                                    <select id="bmrcMotorFds2" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 3</label>
+                                    <select id="bmrcMotorFds3" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 4</label>
+                                    <select id="bmrcMotorFds4" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 5</label>
+                                    <select id="bmrcMotorFds5" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5>FDP por Dedo</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 2</label>
+                                    <select id="bmrcMotorFdp2" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 3</label>
+                                    <select id="bmrcMotorFdp3" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 4</label>
+                                    <select id="bmrcMotorFdp4" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 5</label>
+                                    <select id="bmrcMotorFdp5" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5>Otros Músculos</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FPL</label>
+                                    <select id="bmrcMotorFpl" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FCU</label>
+                                    <select id="bmrcMotorFcu" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FCR</label>
+                                    <select id="bmrcMotorFcr" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">PL</label>
+                                    <select id="bmrcMotorPl" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">M0 - Sin contracción muscular</option>
+                                        <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                        <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                        <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                        <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                        <option value="5">M5 - Fuerza muscular normal</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn--primary">Registrar Paciente</button>
+                    <button type="submit" class="btn btn--primary">Guardar Paciente</button>
                     <button type="button" class="btn btn--secondary" onclick="showSection('dashboard')">Cancelar</button>
                 </div>
             </form>
@@ -624,10 +1080,10 @@
             </div>
 
             <!-- Selección de Paciente -->
-            <div id="patientSelection">
+            <div id="patientSelection" class="patient-selection">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Buscar Paciente</h3>
+                        <h3>Seleccionar Paciente</h3>
                     </div>
                     <div class="card-body">
                         <div class="search-form">
@@ -640,182 +1096,262 @@
             </div>
 
             <!-- Formulario de Control -->
-            <div id="followUpForm" class="hidden">
+            <form id="followUpForm" class="patient-form hidden">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Control de Seguimiento - <span id="selectedPatientName"></span></h3>
+                        <h3 id="selectedPatientName">Paciente Seleccionado</h3>
+                        <div class="week-selection">
+                            <label class="form-label">Semana de Control</label>
+                            <select id="followUpWeek" class="form-control" required onchange="loadExistingFollowUp()">
+                                <option value="">Seleccionar semana...</option>
+                                <option value="1">Semana 1</option>
+                                <option value="3">Semana 3</option>
+                                <option value="6">Semana 6</option>
+                                <option value="12">Semana 12</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <form id="followUpForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Protocolo Usado</label>
+                                <select id="protocolUsed" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="KLEINERT">KLEINERT</option>
+                                    <option value="DURAN">DURAN</option>
+                                    <option value="ACTIVE_MOTION">ACTIVE MOTION</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Terapias Completas</label>
+                                <select id="completeTherapies" class="form-control" onchange="toggleIncompleteReason()">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-span-2" id="incompleteReasonGroup" style="display: none;">
+                                <label class="form-label">¿Por qué incompletas?</label>
+                                <textarea id="incompleteReason" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Complicaciones</label>
+                                <textarea id="complicaciones" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Reintervención Quirúrgica</label>
+                                <input type="text" id="reintervencionQuirurgica" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Goniometría con cálculos automáticos TAM por dedo -->
+                        <h4>Goniometría - Mediciones por Dedo <span class="tooltip" title="Medir grados de flexión en MCF, IFP, IFD de cada dedo">ℹ️</span></h4>
+                        <div id="goniometryMeasurements" class="goniometry-grid">
+                            <!-- Se genera dinámicamente -->
+                        </div>
+
+                        <div class="calculation-results">
+                            <h4>Resultados TAM por Dedo</h4>
+                            <div id="tamByFingerResults" class="tam-by-finger-results">
+                                <!-- Se genera dinámicamente -->
+                            </div>
+
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label class="form-label">Semana de Control</label>
-                                    <select id="followUpWeek" class="form-control" required>
-                                        <option value="">Seleccionar semana</option>
-                                        <option value="1">Semana 1</option>
-                                        <option value="3">Semana 3</option>
-                                        <option value="6">Semana 6</option>
-                                        <option value="12">Semana 12</option>
-                                    </select>
+                                    <label class="form-label">Strickland %</label>
+                                    <input type="number" id="stricklandResult" class="form-control" readonly>
                                 </div>
-
                                 <div class="form-group">
-                                    <label class="form-label">Protocolo Utilizado</label>
-                                    <select id="protocolUsed" class="form-control">
-                                        <option value="">Seleccionar</option>
-                                        <option value="KLEINERT">KLEINERT</option>
-                                        <option value="DURAN">DURAN</option>
-                                        <option value="ACTIVE_MOTION">ACTIVE MOTION</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Terapias Completas</label>
-                                    <select id="completeTherapies" class="form-control" onchange="toggleIncompleteReason()">
-                                        <option value="">Seleccionar</option>
-                                        <option value="true">Sí</option>
-                                        <option value="false">No</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group" id="incompleteReasonGroup" style="display: none;">
-                                    <label class="form-label">Razón de Incompletitud</label>
-                                    <textarea id="incompleteReason" class="form-control" rows="2"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Complicaciones</label>
-                                    <textarea id="complicaciones" class="form-control" rows="2"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Reintervención Quirúrgica</label>
-                                    <input type="text" id="reintervencionQuirurgica" class="form-control">
+                                    <label class="form-label">Clasificación Strickland</label>
+                                    <input type="text" id="stricklandClassification" class="form-control" readonly>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Goniometría -->
-                            <div class="form-section">
-                                <h4>Mediciones Goniométricas</h4>
-                                <div id="goniometryMeasurements" class="goniometry-grid">
-                                    <!-- Se genera dinámicamente -->
-                                </div>
+                        <!-- Quick DASH Completo -->
+                        <h4>Cuestionario QuickDASH <span class="tooltip" title="Cuestionario de 11 preguntas. Escala 1-5 cada pregunta. Se calcula automáticamente el puntaje total y grado de discapacidad">ℹ️</span></h4>
+                        <div id="quickDashQuestions" class="quickdash-section">
+                            <!-- Se genera dinámicamente -->
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Quick DASH (Calculado)</label>
+                                <input type="number" id="quickDashScore" class="form-control" readonly>
                             </div>
-
-                            <!-- Resultados TAM -->
-                            <div class="form-section">
-                                <h4>Resultados TAM por Dedo</h4>
-                                <div id="tamByFingerResults" class="tam-results">
-                                    <!-- Se genera dinámicamente -->
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label">Grado de Discapacidad</label>
+                                <input type="text" id="dashDisabilityGrade" class="form-control" readonly>
                             </div>
-
-                            <!-- Clasificación Strickland -->
-                            <div class="form-section">
-                                <h4>Clasificación Strickland</h4>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label">Resultado Strickland (%)</label>
-                                        <input type="number" id="stricklandResult" class="form-control" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Clasificación</label>
-                                        <input type="text" id="stricklandClassification" class="form-control" readonly>
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label">Retorno a ocupación previa</label>
+                                <select id="returnToPreviousOccupation" class="form-control" onchange="toggleReturnTimeField()">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
                             </div>
-
-                            <!-- QuickDASH -->
-                            <div class="form-section">
-                                <h4>Evaluación QuickDASH</h4>
-                                <div id="quickDashQuestions">
-                                    <!-- Se genera dinámicamente -->
-                                </div>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label">Puntuación QuickDASH</label>
-                                        <input type="number" id="quickDashScore" class="form-control" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Grado de Discapacidad</label>
-                                        <input type="text" id="dashDisabilityGrade" class="form-control" readonly>
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label class="form-label">Cambio de ocupación</label>
+                                <select id="occupationChange" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                    <option value="NO APLICA">NO APLICA</option>
+                                </select>
                             </div>
-
-                            <!-- Retorno Laboral -->
-                            <div class="form-section">
-                                <h4>Retorno Laboral</h4>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label">Retorno a Ocupación Previa</label>
-                                        <select id="returnToPreviousOccupation" class="form-control" onchange="toggleReturnTimeField()">
-                                            <option value="">Seleccionar</option>
-                                            <option value="true">Sí</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-label">Cambio de Ocupación</label>
-                                        <input type="text" id="occupationChange" class="form-control">
-                                    </div>
-
-                                    <div class="form-group" id="returnTimeGroup" style="display: none;">
-                                        <label class="form-label">Tiempo de Retorno (meses)</label>
-                                        <input type="number" id="returnTimeMonths" class="form-control">
-                                    </div>
-                                </div>
+                            <div class="form-group" id="returnTimeGroup" style="display: none;">
+                                <label class="form-label">Tiempo retorno laboral (Meses)</label>
+                                <input type="number" id="returnTimeMonths" class="form-control" min="0">
                             </div>
+                        </div>
 
-                            <!-- Mediciones Adicionales -->
-                            <div class="form-section">
-                                <h4>Mediciones Adicionales</h4>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label">Dinamómetro Izquierdo (kg)</label>
-                                        <input type="number" id="dynamometerLeft" class="form-control" step="0.1" onchange="calculateDynamometerDifference()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Dinamómetro Derecho (kg)</label>
-                                        <input type="number" id="dynamometerRight" class="form-control" step="0.1" onchange="calculateDynamometerDifference()">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Diferencia (kg)</label>
-                                        <input type="number" id="dynamometerDifference" class="form-control" step="0.1" readonly>
-                                    </div>
-                                </div>
-
-                                <!-- Distancia Uña-Palma -->
-                                <h5>Distancia Uña-Palma (mm)</h5>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label class="form-label">Dedo 2 (Índice)</label>
-                                        <input type="number" id="nailPalmDistance2" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Dedo 3 (Medio)</label>
-                                        <input type="number" id="nailPalmDistance3" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Dedo 4 (Anular)</label>
-                                        <input type="number" id="nailPalmDistance4" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Dedo 5 (Meñique)</label>
-                                        <input type="number" id="nailPalmDistance5" class="form-control">
-                                    </div>
-                                </div>
+                        <!-- Escalas de Evaluación en el Control -->
+                        <h4>BMRC Scale - Sensitivo <span class="tooltip" title="Escala S0-S4. S0:Sin sensación, S1:Dolor profundo, S2:Dolor y tacto, S3:Discriminación 15-20mm, S4:Discriminación <7mm">ℹ️</span></h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Mediano</label>
+                                <select id="followUpBmrcSensoryMedian" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
                             </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn--primary">Guardar Control</button>
-                                <button type="button" class="btn btn--secondary" onclick="cancelFollowUp()">Cancelar</button>
+                            <div class="form-group">
+                                <label class="form-label">Cubital</label>
+                                <select id="followUpBmrcSensoryUlnar" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
                             </div>
-                        </form>
+                            <div class="form-group">
+                                <label class="form-label">Radial</label>
+                                <select id="followUpBmrcSensoryRadial" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">S0 - Sin sensación</option>
+                                    <option value="1">S1 - Sensación de dolor profundo</option>
+                                    <option value="2">S2 - Sensación de dolor y tacto</option>
+                                    <option value="2.5">S2+ - Sensación de dolor y tacto con cierta sobrereacción</option>
+                                    <option value="3">S3 - Como S2+, sin sobrereacción y discriminación estática 15-20 mm</option>
+                                    <option value="3.5">S3+ - Como S3+, discriminación estática 7-15 mm</option>
+                                    <option value="4">S4 - Como S3+, discriminación estática <7 mm</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- BMRC Scale Motor -->
+                        <h4>BMRC Scale - Motor <span class="tooltip" title="Escala M0-M5. M0:Sin contracción, M1:Contracción sin movimiento, M2:Movimiento sin gravedad, M3:Contra gravedad sin resistencia, M4:Con resistencia parcial, M5:Fuerza normal">ℹ️</span></h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">FPL</label>
+                                <select id="followUpBmrcMotorFpl" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">FCU</label>
+                                <select id="followUpBmrcMotorFcu" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">FCR</label>
+                                <select id="followUpBmrcMotorFcr" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PL</label>
+                                <select id="followUpBmrcMotorPl" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">M0 - Sin contracción muscular</option>
+                                    <option value="1">M1 - Contracción muscular que no resulta en movimiento articular</option>
+                                    <option value="2">M2 - Contracción muscular con movimiento excluyendo gravedad</option>
+                                    <option value="3">M3 - Contracción muscular efectiva contra gravedad pero no supera resistencia</option>
+                                    <option value="4">M4 - Contracción muscular que supera cierta resistencia</option>
+                                    <option value="5">M5 - Fuerza muscular normal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Dinamómetro -->
+                        <h4>Dinamómetro (lb)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Izquierda</label>
+                                <input type="number" id="dynamometerLeft" class="form-control" min="0" step="0.1" onchange="calculateDynamometerDifference()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Derecha</label>
+                                <input type="number" id="dynamometerRight" class="form-control" min="0" step="0.1" onchange="calculateDynamometerDifference()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Diferencia</label>
+                                <input type="number" id="dynamometerDifference" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Distancia Uña-Palma -->
+                        <h4>Distancia Uña-Palma (mm) <span class="tooltip" title="Medir en mm desde la punta del dedo hasta la palma con flexión máxima">ℹ️</span></h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Dedo 2</label>
+                                <input type="number" id="nailPalmDistance2" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 3</label>
+                                <input type="number" id="nailPalmDistance3" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 4</label>
+                                <input type="number" id="nailPalmDistance4" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 5</label>
+                                <input type="number" id="nailPalmDistance5" class="form-control" min="0">
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Guardar Control</button>
+                    <button type="button" class="btn btn--secondary" onclick="cancelFollowUp()">Cancelar</button>
+                </div>
+            </form>
         </section>
 
         <!-- Sección Editar Pacientes -->
@@ -925,6 +1461,22 @@
             </div>
         </div>
 
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmar Cambios</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmationMessage">¿Está seguro que desea guardar estos cambios?</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn--primary" onclick="confirmEdit()">Confirmar</button>
+                    <button class="btn btn--secondary" onclick="cancelEdit()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Loading Spinner -->
         <div id="loadingSpinner" class="spinner hidden">
             <div class="spinner-circle"></div>
@@ -975,7 +1527,7 @@
                 
                 // Hide loading overlay
                 loadingOverlay.classList.add('hidden');
-            }, 1000);
+            }, 1500);
         });
         
         // Global error handler
