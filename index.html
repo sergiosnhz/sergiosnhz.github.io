@@ -160,7 +160,6 @@
             <div class="action-buttons">
                 <button class="btn btn--primary" onclick="showSection('nuevoPatient')">Nuevo Paciente</button>
                 <button class="btn btn--secondary" onclick="showControlSelection()">Control de Seguimiento</button>
-                <button class="btn btn--info" onclick="showClinicalHistories()">Historias Clínicas Completas</button>
                 <button class="btn btn--outline" onclick="exportData()">Exportar Datos CSV</button>
                 <button class="btn btn--outline" onclick="logout()">Cerrar Sesión</button>
             </div>
@@ -223,49 +222,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Historias Clínicas Completas -->
-        <section id="clinicalHistories" class="section">
-            <div class="section-header">
-                <h2>Historias Clínicas Completas</h2>
-                <nav class="breadcrumb">
-                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
-                    <span class="breadcrumb-separator">></span> 
-                    <span class="breadcrumb-current">Historias Clínicas</span>
-                </nav>
-                <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
-            </div>
-
-            <div class="search-section">
-                <div class="search-form">
-                    <input type="text" id="clinicalHistorySearch" class="form-control" placeholder="Buscar paciente por nombre o documento">
-                    <button class="btn btn--primary" onclick="searchClinicalHistories()">Buscar</button>
-                </div>
-            </div>
-
-            <div id="clinicalHistoriesList" class="clinical-histories-list">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </section>
-
-        <!-- Vista Individual de Historia Clínica -->
-        <section id="individualClinicalHistory" class="section">
-            <div class="section-header">
-                <h2 id="clinicalHistoryPatientName">Historia Clínica</h2>
-                <nav class="breadcrumb">
-                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
-                    <span class="breadcrumb-separator">></span> 
-                    <span onclick="showSection('clinicalHistories')" class="breadcrumb-link">Historias Clínicas</span>
-                    <span class="breadcrumb-separator">></span> 
-                    <span class="breadcrumb-current">Vista Individual</span>
-                </nav>
-                <button class="btn btn--outline" onclick="showSection('clinicalHistories')">Volver a Lista</button>
-            </div>
-
-            <div id="individualHistoryContent" class="individual-history-content">
-                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
@@ -781,19 +737,22 @@
                             </div>
                         </div>
 
-                        <!-- Goniometría con cálculos automáticos TAM por dedo -->
+                        <!-- Goniometría con cálculos automáticos -->
                         <h4>Goniometría - Mediciones por Dedo</h4>
                         <div id="goniometryMeasurements" class="goniometry-grid">
                             <!-- Se genera dinámicamente -->
                         </div>
                         
                         <div class="calculation-results">
-                            <h4>Resultados TAM por Dedo</h4>
-                            <div id="tamByFingerResults" class="tam-by-finger-results">
-                                <!-- Se genera dinámicamente -->
-                            </div>
-                            
                             <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">TAM (Total Active Motion)</label>
+                                    <input type="number" id="tamResult" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Porcentaje TAM (%)</label>
+                                    <input type="number" id="tamPercentage" class="form-control" readonly>
+                                </div>
                                 <div class="form-group">
                                     <label class="form-label">Strickland (%)</label>
                                     <input type="number" id="stricklandResult" class="form-control" readonly>
@@ -984,7 +943,7 @@
             </form>
         </section>
 
-        <!-- Historial del Paciente (Para compatibilidad) -->
+        <!-- Historial del Paciente -->
         <section id="patientHistory" class="section">
             <div class="section-header">
                 <h2>Historial del Paciente</h2>
@@ -1016,41 +975,6 @@
                             <button id="timerPauseBtn" class="btn btn--secondary hidden" onclick="pauseTimer()">Pausar</button>
                             <button id="timerResetBtn" class="btn btn--outline" onclick="resetTimer()">Reiniciar</button>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Edit Modal -->
-        <div id="editModal" class="modal hidden">
-            <div class="modal-content edit-modal">
-                <div class="modal-header">
-                    <h3 id="editModalTitle">Editar Información</h3>
-                    <button class="btn btn--outline btn--sm" onclick="closeEditModal()">×</button>
-                </div>
-                <div class="modal-body">
-                    <form id="editForm">
-                        <div id="editFormContent"></div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn--primary">Guardar Cambios</button>
-                            <button type="button" class="btn btn--secondary" onclick="closeEditModal()">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Confirmation Modal -->
-        <div id="confirmationModal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Confirmar Cambios</h3>
-                </div>
-                <div class="modal-body">
-                    <p id="confirmationMessage">¿Está seguro que desea guardar estos cambios?</p>
-                    <div class="modal-actions">
-                        <button class="btn btn--primary" onclick="confirmEdit()">Confirmar</button>
-                        <button class="btn btn--secondary" onclick="cancelEdit()">Cancelar</button>
                     </div>
                 </div>
             </div>
