@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Evaluación - Tendones Flexores</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Acceso Inicial -->
+        <section id="accessScreen" class="section active">
+            <div class="access-screen">
+                <div class="app-header">
+                    <h1>Sistema de Evaluación - Tendones Flexores</h1>
+                    <p>Seguimiento de pacientes con lesiones en zonas I, II, III, IV y V</p>
+                </div>
+                
+                <div class="access-buttons">
+                    <button class="btn btn--primary btn--large" onclick="showSection('patientSection')">
+                        <span>👤</span>
+                        SOY PACIENTE
+                    </button>
+                    <button class="btn btn--secondary btn--large" onclick="showSection('doctorLogin')">
+                        <span>🏥</span>
+                        SOY MÉDICO
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login Médico -->
+        <section id="doctorLogin" class="section">
+            <div class="login-container">
+                <div class="card">
+                    <div class="card__header">
+                        <h2>Acceso Médico</h2>
+                    </div>
+                    <div class="card__body">
+                        <form id="doctorLoginForm">
+                            <div class="form-group">
+                                <label class="form-label">Número de Cédula</label>
+                                <input type="text" id="doctorId" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" id="doctorName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Contraseña</label>
+                                <input type="password" id="doctorPassword" class="form-control" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn--primary">Ingresar</button>
+                                <button type="button" class="btn btn--outline" onclick="showSection('accessScreen')">Volver</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Paciente -->
+        <section id="patientSection" class="section">
+            <div class="section-header">
+                <h2>Información para Pacientes</h2>
+                <button class="btn btn--outline" onclick="showSection('accessScreen')">Volver</button>
+            </div>
+
+            <!-- Protocolos de Ejercicios -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Protocolos de Ejercicios</h3>
+                </div>
+                <div class="card__body">
+                    <div class="protocol-tabs">
+                        <button class="tab-button active" onclick="showProtocol('KLEINERT')">KLEINERT</button>
+                        <button class="tab-button" onclick="showProtocol('DURAN')">DURAN</button>
+                        <button class="tab-button" onclick="showProtocol('ACTIVE_MOTION')">ACTIVE MOTION</button>
+                    </div>
+                    
+                    <div id="protocolContent" class="protocol-content">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuidados del Paciente -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Cuidados del Paciente</h3>
+                </div>
+                <div class="card__body">
+                    <div class="care-section">
+                        <h4>Cuidados de Férula y Cicatriz</h4>
+                        
+                        <div class="care-subsection">
+                            <h5>Cuidado de la Férula</h5>
+                            <ul class="care-list">
+                                <li>Mantener seca y limpia</li>
+                                <li>No remover sin indicación médica</li>
+                                <li>Revisar ajuste diariamente</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="care-subsection">
+                            <h5>Cuidado de la Cicatriz</h5>
+                            <ul class="care-list">
+                                <li>Mantener área limpia y seca</li>
+                                <li>Masaje cicatricial posterior a 3 semanas</li>
+                                <li>Protección solar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Médico -->
+        <section id="dashboard" class="section">
+            <div id="doctorInfo" class="doctor-info">
+                <!-- Se llena dinámicamente -->
+            </div>
+            
+            <header class="app-header">
+                <h1>Sistema de Evaluación - Tendones Flexores</h1>
+                <p>Panel de Control Médico</p>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <h3>Total Pacientes</h3>
+                        <div class="stat-number" id="totalPacientes">0</div>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <h3>Controles Pendientes</h3>
+                        <div class="stat-number" id="controlesPendientes">0</div>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card__body">
+                        <h3>Pacientes con Controles Incompletos</h3>
+                        <div class="stat-number" id="pacientesIncompletos">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <h3>Búsqueda de Pacientes</h3>
+                <div class="search-form">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre o número de documento">
+                    <button class="btn btn--primary" onclick="searchPatients()">Buscar</button>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn--primary" onclick="showSection('nuevoPatient')">Nuevo Paciente</button>
+                <button class="btn btn--secondary" onclick="showControlSelection()">Control de Seguimiento</button>
+                <button class="btn btn--info" onclick="showClinicalHistories()">Historias Clínicas Completas</button>
+                <button class="btn btn--outline" onclick="exportData()">Exportar Datos CSV</button>
+                <button class="btn btn--outline" onclick="logout()">Cerrar Sesión</button>
+            </div>
+
+            <!-- Cronograma de Controles Postoperatorios -->
+            <div class="card schedule-card">
+                <div class="card__header">
+                    <h3>Cronograma de Controles Postoperatorios</h3>
+                </div>
+                <div class="card__body">
+                    <div class="postop-schedule">
+                        <div class="postop-timeline">
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>1-2 Semanas Post-cirugía</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Primera consulta - Retiro de suturas, evaluación de cicatrización</li>
+                                        <li>Control inicial</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>3-4 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Inicio de movilización activa asistida</li>
+                                        <li>Cambio de fase</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>6 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Evaluación de ROM, inicio de fortalecimiento</li>
+                                        <li>Cambio de fase</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="postop-item">
+                                <div class="postop-week">
+                                    <h4>12 Semanas</h4>
+                                </div>
+                                <div class="postop-activities">
+                                    <ul>
+                                        <li>Evaluación final, alta médica</li>
+                                        <li>Control final</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Historias Clínicas Completas -->
+        <section id="clinicalHistories" class="section">
+            <div class="section-header">
+                <h2>Historias Clínicas Completas</h2>
+                <nav class="breadcrumb">
+                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
+                    <span class="breadcrumb-separator">></span> 
+                    <span class="breadcrumb-current">Historias Clínicas</span>
+                </nav>
+                <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
+            </div>
+
+            <div class="search-section">
+                <div class="search-form">
+                    <input type="text" id="clinicalHistorySearch" class="form-control" placeholder="Buscar paciente por nombre o documento">
+                    <button class="btn btn--primary" onclick="searchClinicalHistories()">Buscar</button>
+                </div>
+            </div>
+
+            <div id="clinicalHistoriesList" class="clinical-histories-list">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Vista Individual de Historia Clínica -->
+        <section id="individualClinicalHistory" class="section">
+            <div class="section-header">
+                <h2 id="clinicalHistoryPatientName">Historia Clínica</h2>
+                <nav class="breadcrumb">
+                    <span onclick="showSection('dashboard')" class="breadcrumb-link">Dashboard</span> 
+                    <span class="breadcrumb-separator">></span> 
+                    <span onclick="showSection('clinicalHistories')" class="breadcrumb-link">Historias Clínicas</span>
+                    <span class="breadcrumb-separator">></span> 
+                    <span class="breadcrumb-current">Vista Individual</span>
+                </nav>
+                <button class="btn btn--outline" onclick="showSection('clinicalHistories')">Volver a Lista</button>
+            </div>
+
+            <div id="individualHistoryContent" class="individual-history-content">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Nuevo Paciente -->
+        <section id="nuevoPatient" class="section">
+            <div class="section-header">
+                <h2>Registro de Nuevo Paciente</h2>
+                <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
+            </div>
+
+            <form id="newPatientForm" class="patient-form">
+                <!-- Sección 1: Identificación -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>1. Identificación del Paciente</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Fecha de Ingreso</label>
+                                <input type="date" id="admissionDate" class="form-control" required onchange="calculateDaysToSurgery()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tiempo de Evolución hasta el ingreso (Horas)</label>
+                                <input type="number" id="evolutionTime" class="form-control" min="0" required>
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" id="fullName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Documento</label>
+                                <select id="documentType" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+                                    <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                                    <option value="Pasaporte">Pasaporte</option>
+                                    <option value="Registro Civil">Registro Civil</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Número de Documento</label>
+                                <input type="text" id="documentNumber" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Edad</label>
+                                <input type="number" id="age" class="form-control" min="0" max="120" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sexo</label>
+                                <select id="sex" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nivel Educativo</label>
+                                <select id="educationLevel" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Primaria">Primaria</option>
+                                    <option value="Secundaria">Secundaria</option>
+                                    <option value="Técnico">Técnico</option>
+                                    <option value="Tecnólogo">Tecnólogo</option>
+                                    <option value="Universitario">Universitario</option>
+                                    <option value="Especialización">Especialización</option>
+                                    <option value="Maestría">Maestría</option>
+                                    <option value="Doctorado">Doctorado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ocupación Actual</label>
+                                <input type="text" id="occupation" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ciudad de Nacimiento</label>
+                                <input type="text" id="birthCity" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dirección</label>
+                                <input type="text" id="address" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Departamento</label>
+                                <input type="text" id="department" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ciudad de Residencia</label>
+                                <input type="text" id="city" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono de Contacto</label>
+                                <input type="tel" id="phone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" id="email" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">EPS</label>
+                                <input type="text" id="eps" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Afiliación</label>
+                                <select id="affiliationType" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="CONTRIBUTIVO">CONTRIBUTIVO</option>
+                                    <option value="SUBSIDIADO">SUBSIDIADO</option>
+                                    <option value="BENEFICIARIO">BENEFICIARIO</option>
+                                    <option value="AFILIADO">AFILIADO</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Religión</label>
+                                <input type="text" id="religion" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nombre del Acompañante</label>
+                                <input type="text" id="companionName" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Relación con el Acompañante</label>
+                                <input type="text" id="companionRelation" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono del Acompañante</label>
+                                <input type="tel" id="companionPhone" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Datos Iniciales -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>2. Datos Iniciales del Trauma</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Zona Lesionada</label>
+                                <select id="injuredZone" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="I">Zona I</option>
+                                    <option value="II">Zona II</option>
+                                    <option value="III">Zona III</option>
+                                    <option value="IV">Zona IV</option>
+                                    <option value="V">Zona V</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Objeto</label>
+                                <input type="text" id="object" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Etiología</label>
+                                <select id="etiology" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="CORTOPUNZANTE">CORTOPUNZANTE</option>
+                                    <option value="CORTOCONTUNDENTE">CORTOCONTUNDENTE</option>
+                                    <option value="APLASTAMIENTO">APLASTAMIENTO</option>
+                                    <option value="EXPLOSIVO">EXPLOSIVO</option>
+                                    <option value="CIZALLANTE">CIZALLANTE</option>
+                                    <option value="COMBINADO">COMBINADO</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Mecanismo del Trauma</label>
+                                <select id="traumaMechanism" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="ABIERTO">ABIERTO</option>
+                                    <option value="CERRADO">CERRADO</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Descripción Prequirúrgica</label>
+                                <textarea id="presurgicalDescription" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Tendón Flexor Comprometido</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="tendon_fds" value="FDS"> FDS</label>
+                                    <label><input type="checkbox" id="tendon_fdp" value="FDP"> FDP</label>
+                                    <label><input type="checkbox" id="tendon_fpl" value="FPL"> FPL</label>
+                                    <label><input type="checkbox" id="tendon_fcu" value="FCU"> FCU</label>
+                                    <label><input type="checkbox" id="tendon_fcr" value="FCR"> FCR</label>
+                                    <label><input type="checkbox" id="tendon_pl" value="PL"> PL</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Descripción Tendón Flexor Comprometido</label>
+                                <textarea id="tendonDescription" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-span-2">
+                                <label class="form-label">Lesión Asociada General (Seleccionar todas las que apliquen)</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="injury_nervioso" value="NERVIOSO"> NERVIOSO</label>
+                                    <label><input type="checkbox" id="injury_oseo" value="ÓSEO"> ÓSEO</label>
+                                    <label><input type="checkbox" id="injury_vascular" value="VASCULAR"> VASCULAR</label>
+                                    <label><input type="checkbox" id="injury_muscular" value="MUSCULAR"> MUSCULAR</label>
+                                    <label><input type="checkbox" id="injury_ligamentaria" value="LIGAMENTARIA"> LIGAMENTARIA</label>
+                                    <label><input type="checkbox" id="injury_capsula" value="CÁPSULA ARTICULAR"> CÁPSULA ARTICULAR</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lesión Asociada (Específica)</label>
+                                <input type="text" id="specificAssociatedInjury" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tenorrafia (hilos)</label>
+                                <input type="text" id="tenorrhaphyThreads" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reparación</label>
+                                <select id="repairType" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="CENTRAL">CENTRAL</option>
+                                    <option value="EPITENDINOSA">EPITENDINOSA</option>
+                                    <option value="MIXTA">MIXTA</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Técnica Reparación</label>
+                                <input type="text" id="repairTechnique" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tenolisis</label>
+                                <select id="tenolysis" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="Sí">Sí</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Días para Cirugía (Calculado automáticamente)</label>
+                                <input type="number" id="daysToSurgery" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha Quirúrgica</label>
+                                <input type="date" id="surgeryDate" class="form-control" onchange="calculateDaysToSurgery()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Escalas de Evaluación -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>3. Escalas de Evaluación Inicial</h3>
+                    </div>
+                    <div class="card__body">
+                        <h4>BMRC Scale - Sensitivo</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Mediano</label>
+                                <select id="bmrcSensoryMedian" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cubital</label>
+                                <select id="bmrcSensoryUlnar" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Radial</label>
+                                <select id="bmrcSensoryRadial" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h4>BMRC Scale - Motor</h4>
+                        <div class="bmrc-motor-section">
+                            <h5>FDS por Dedo</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 2</label>
+                                    <select id="bmrcMotorFds2" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 3</label>
+                                    <select id="bmrcMotorFds3" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 4</label>
+                                    <select id="bmrcMotorFds4" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDS Dedo 5</label>
+                                    <select id="bmrcMotorFds5" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5>FDP por Dedo</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 2</label>
+                                    <select id="bmrcMotorFdp2" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 3</label>
+                                    <select id="bmrcMotorFdp3" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 4</label>
+                                    <select id="bmrcMotorFdp4" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FDP Dedo 5</label>
+                                    <select id="bmrcMotorFdp5" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h5>Otros Músculos</h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">FPL</label>
+                                    <select id="bmrcMotorFpl" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FCU</label>
+                                    <select id="bmrcMotorFcu" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">FCR</label>
+                                    <select id="bmrcMotorFcr" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">PL</label>
+                                    <select id="bmrcMotorPl" class="form-control">
+                                        <option value="">Seleccionar</option>
+                                        <option value="0">0 - Sin contracción detectable</option>
+                                        <option value="1">1 - Contracción visible sin movimiento</option>
+                                        <option value="2">2 - Movimiento sin gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia</option>
+                                        <option value="5">5 - Fuerza normal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Guardar Paciente</button>
+                    <button type="button" class="btn btn--secondary" onclick="showSection('dashboard')">Cancelar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Control de Seguimiento -->
+        <section id="followUpControl" class="section">
+            <div class="section-header">
+                <h2>Control de Seguimiento</h2>
+                <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
+            </div>
+
+            <div id="patientSelection" class="patient-selection">
+                <h3>Seleccionar Paciente</h3>
+                <div class="search-form">
+                    <input type="text" id="followUpSearch" class="form-control" placeholder="Buscar paciente por nombre o documento">
+                    <button class="btn btn--primary" onclick="searchPatientsForFollowUp()">Buscar</button>
+                </div>
+                <div id="followUpSearchResults" class="search-results"></div>
+            </div>
+
+            <form id="followUpForm" class="patient-form hidden">
+                <div class="card">
+                    <div class="card__header">
+                        <h3 id="selectedPatientName">Paciente Seleccionado</h3>
+                        <div class="week-selection">
+                            <label class="form-label">Semana de Control:</label>
+                            <select id="followUpWeek" class="form-control" required onchange="loadExistingFollowUp()">
+                                <option value="">Seleccionar semana...</option>
+                                <option value="1">Semana 1</option>
+                                <option value="3">Semana 3</option>
+                                <option value="6">Semana 6</option>
+                                <option value="12">Semana 12</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Protocolo Usado</label>
+                                <select id="protocolUsed" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="KLEINERT">KLEINERT</option>
+                                    <option value="DURAN">DURAN</option>
+                                    <option value="ACTIVE MOTION">ACTIVE MOTION</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Terapias Completas</label>
+                                <select id="completeTherapies" class="form-control" onchange="toggleIncompleteReason()">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-span-2" id="incompleteReasonGroup" style="display: none;">
+                                <label class="form-label">¿Por qué incompletas?</label>
+                                <textarea id="incompleteReason" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Goniometría con cálculos automáticos TAM por dedo -->
+                        <h4>Goniometría - Mediciones por Dedo</h4>
+                        <div id="goniometryMeasurements" class="goniometry-grid">
+                            <!-- Se genera dinámicamente -->
+                        </div>
+                        
+                        <div class="calculation-results">
+                            <h4>Resultados TAM por Dedo</h4>
+                            <div id="tamByFingerResults" class="tam-by-finger-results">
+                                <!-- Se genera dinámicamente -->
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Strickland (%)</label>
+                                    <input type="number" id="stricklandResult" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Clasificación Strickland</label>
+                                    <input type="text" id="stricklandClassification" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick DASH Completo -->
+                        <h4>Cuestionario QuickDASH</h4>
+                        <div id="quickDashQuestions" class="quickdash-section">
+                            <!-- Se genera dinámicamente -->
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Quick DASH (Calculado)</label>
+                                <input type="number" id="quickDashScore" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Grado de Discapacidad</label>
+                                <input type="text" id="dashDisabilityGrade" class="form-control" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Retorno a ocupación previa</label>
+                                <select id="returnToPreviousOccupation" class="form-control" onchange="toggleReturnTimeField()">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cambio de ocupación</label>
+                                <select id="occupationChange" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                    <option value="NO APLICA">NO APLICA</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="returnTimeGroup" style="display: none;">
+                                <label class="form-label">Tiempo retorno laboral (Meses)</label>
+                                <input type="number" id="returnTimeMonths" class="form-control" min="0">
+                            </div>
+                        </div>
+
+                        <!-- Escalas de Evaluación en el Control -->
+                        <h4>BMRC Scale - Sensitivo</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Mediano</label>
+                                <select id="followUpBmrcSensoryMedian" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cubital</label>
+                                <select id="followUpBmrcSensoryUlnar" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Radial</label>
+                                <select id="followUpBmrcSensoryRadial" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- BMRC Scale Motor -->
+                        <h4>BMRC Scale - Motor</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">FPL</label>
+                                <select id="followUpBmrcMotorFpl" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">FCU</label>
+                                <select id="followUpBmrcMotorFcu" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">FCR</label>
+                                <select id="followUpBmrcMotorFcr" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PL</label>
+                                <select id="followUpBmrcMotorPl" class="form-control">
+                                    <option value="">Seleccionar</option>
+                                    <option value="0">0 - Sin contracción detectable</option>
+                                    <option value="1">1 - Contracción visible sin movimiento</option>
+                                    <option value="2">2 - Movimiento sin gravedad</option>
+                                    <option value="3">3 - Movimiento contra gravedad</option>
+                                    <option value="4">4 - Movimiento con resistencia</option>
+                                    <option value="5">5 - Fuerza normal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Dinamómetro -->
+                        <h4>Dinamómetro (lb)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Izquierda</label>
+                                <input type="number" id="dynamometerLeft" class="form-control" min="0" step="0.1" onchange="calculateDynamometerDifference()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Derecha</label>
+                                <input type="number" id="dynamometerRight" class="form-control" min="0" step="0.1" onchange="calculateDynamometerDifference()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Diferencia</label>
+                                <input type="number" id="dynamometerDifference" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Distancia Uña/Palma -->
+                        <h4>Distancia Uña/Palma (mm)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Dedo 2</label>
+                                <input type="number" id="nailPalmDistance2" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 3</label>
+                                <input type="number" id="nailPalmDistance3" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 4</label>
+                                <input type="number" id="nailPalmDistance4" class="form-control" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dedo 5</label>
+                                <input type="number" id="nailPalmDistance5" class="form-control" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Guardar Control</button>
+                    <button type="button" class="btn btn--secondary" onclick="cancelFollowUp()">Cancelar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Historial del Paciente (Para compatibilidad) -->
+        <section id="patientHistory" class="section">
+            <div class="section-header">
+                <h2>Historial del Paciente</h2>
+                <div class="header-actions">
+                    <button class="btn btn--primary" onclick="showPatientEditDialog()" id="editPatientBtn">Modificar Datos</button>
+                    <button class="btn btn--outline" onclick="showSection('dashboard')">Volver al Dashboard</button>
+                </div>
+            </div>
+            <div id="historyContent" class="history-content">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Exercise Timer Modal -->
+        <div id="exerciseTimerModal" class="modal hidden">
+            <div class="modal-content exercise-modal">
+                <div class="modal-header">
+                    <h3 id="exerciseTitle">Ejercicio</h3>
+                    <button class="btn btn--outline btn--sm" onclick="closeExerciseModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div id="exerciseDescription" class="exercise-description"></div>
+                    <div class="timer-display">
+                        <div id="timerCircle" class="timer-circle">
+                            <div id="timerText" class="timer-text">00:00</div>
+                        </div>
+                        <div class="timer-controls">
+                            <button id="timerStartBtn" class="btn btn--primary" onclick="startTimer()">Iniciar</button>
+                            <button id="timerPauseBtn" class="btn btn--secondary hidden" onclick="pauseTimer()">Pausar</button>
+                            <button id="timerResetBtn" class="btn btn--outline" onclick="resetTimer()">Reiniciar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal hidden">
+            <div class="modal-content edit-modal">
+                <div class="modal-header">
+                    <h3 id="editModalTitle">Editar Información</h3>
+                    <button class="btn btn--outline btn--sm" onclick="closeEditModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div id="editFormContent"></div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--primary">Guardar Cambios</button>
+                            <button type="button" class="btn btn--secondary" onclick="closeEditModal()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Confirmar Cambios</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmationMessage">¿Está seguro que desea guardar estos cambios?</p>
+                    <div class="modal-actions">
+                        <button class="btn btn--primary" onclick="confirmEdit()">Confirmar</button>
+                        <button class="btn btn--secondary" onclick="cancelEdit()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="spinner hidden">
+            <div class="spinner-circle"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
