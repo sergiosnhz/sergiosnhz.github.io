@@ -10,6 +10,9 @@ let editingSection = null;
 let pendingEditData = null;
 let currentEditPatientId = null;
 
+// Firebase will be initialized in HTML, so we access it from global scope
+// const db = firebase.firestore(); - Already defined in HTML
+
 // Application Data with corrected BMRC scales
 const appData = {
     accessPassword: "0911",
@@ -168,29 +171,84 @@ appData.exercise_protocols = {
     }
 };
 
-// Data persistence functions (using memory since localStorage not available)
-let memoryStorage = {};
+// FIREBASE DATA PERSISTENCE FUNCTIONS
+// Reemplaza las funciones de memoria con Firebase/Firestore
 
-function savePatients() {
+async function savePatients() {
     try {
-        memoryStorage['flexorTendonPatients'] = JSON.stringify(patients);
-        console.log('Pacientes guardados en memoria:', patients.length);
+        const batch = db.batch();
+        patients.forEach(patient => {
+            const docRef = db.collection('patients').doc(patient.id);
+            batch.set(docRef, patient);
+        });
+        await batch.commit();
+        console.log('Pacientes guardados en Firestore:', patients.length);
+        showAlert('Datos sincronizados en la nube', 'success');
     } catch (error) {
-        console.error('Error guardando pacientes:', error);
-        showAlert('Error guardando datos', 'error');
+        console.error('Error guardando pacientes en Firestore:', error);
+        showAlert('Error sincronizando datos en la nube: ' + error.message, 'error');
     }
 }
 
-function loadPatients() {
+async function loadPatients() {
     try {
-        const savedPatients = memoryStorage['flexorTendonPatients'];
-        if (savedPatients) {
-            patients = JSON.parse(savedPatients);
-            console.log('Pacientes cargados:', patients.length);
-        }
+        const snapshot = await db.collection('patients').get();
+        patients = snapshot.docs.map(doc => doc.data());
+        console.log('Pacientes cargados desde Firestore:', patients.length);
+        updateDashboard();
     } catch (error) {
-        console.error('Error cargando pacientes:', error);
+        console.error('Error cargando pacientes desde Firestore:', error);
         patients = [];
+        showAlert('Error cargando datos de la nube: ' + error.message, 'error');
+    }
+}
+
+// Nueva función para guardar un paciente individual
+async function savePatient(patient) {
+    try {
+        await db.collection('patients').doc(patient.id).set(patient);
+        console.log('Paciente guardado en Firestore:', patient.id);
+    } catch (error) {
+        console.error('Error guardando paciente:', error);
+        showAlert('Error guardando paciente: ' + error.message, 'error');
+        throw error;
+    }
+}
+
+// Nueva función para actualizar un paciente específico
+async function updatePatient(patientId, updates) {
+    try {
+        await db.collection('patients').doc(patientId).update(updates);
+        console.log('Paciente actualizado en Firestore:', patientId);
+    } catch (error) {
+        console.error('Error actualizando paciente:', error);
+        showAlert('Error actualizando paciente: ' + error.message, 'error');
+        throw error;
+    }
+}
+
+// Nueva función para eliminar un paciente
+async function deletePatient(patientId) {
+    try {
+        await db.collection('patients').doc(patientId).delete();
+        console.log('Paciente eliminado de Firestore:', patientId);
+    } catch (error) {
+        console.error('Error eliminando paciente:', error);
+        showAlert('Error eliminando paciente: ' + error.message, 'error');
+        throw error;
+    }
+}
+
+// Función para escuchar cambios en tiempo real (opcional)
+function subscribeToPatientUpdates() {
+    try {
+        db.collection('patients').onSnapshot(snapshot => {
+            patients = snapshot.docs.map(doc => doc.data());
+            console.log('Datos actualizados en tiempo real:', patients.length);
+            updateDashboard();
+        });
+    } catch (error) {
+        console.error('Error suscribiéndose a actualizaciones:', error);
     }
 }
 
@@ -245,16 +303,12 @@ function handleDoctorLogin(event) {
 
         // NUEVO: Verificar credenciales especiales para borrado completo
         if (doctorId === '3124540284' && password === '3124540284') {
-            const confirmDelete = confirm('¿ADVERTENCIA: Está a punto de BORRAR TODOS LOS DATOS de la base de datos. Esta acción NO se puede deshacer. ¿Está seguro que desea continuar?');
+            const confirmDelete = confirm('¿ADVERTENCIA: Está a punto de BORRAR TODOS LOS DATOS de la base de datos EN LA NUBE. Esta acción NO se puede deshacer. ¿Está seguro que desea continuar?');
             if (confirmDelete) {
-                const doubleConfirm = confirm('CONFIRMACIÓN FINAL: ¿Está completamente seguro de que desea eliminar TODA la información de pacientes y controles?');
+                const doubleConfirm = confirm('CONFIRMACIÓN FINAL: ¿Está completamente seguro de que desea eliminar TODA la información de pacientes y controles DE FIRESTORE?');
                 if (doubleConfirm) {
-                    // Borrar todos los datos
-                    patients = [];
-                    memoryStorage = {};
-                    savePatients();
-                    showAlert('TODOS LOS DATOS HAN SIDO ELIMINADOS COMPLETAMENTE', 'success');
-                    updateDashboard();
+                    // Borrar todos los datos en Firestore
+                    deleteAllPatientsFromFirestore();
                     return false;
                 }
             }
@@ -281,18 +335,39 @@ function handleDoctorLogin(event) {
 
         console.log('Usuario autenticado:', currentUser);
         updateDoctorInfo();
-        showAlert('Sesión iniciada correctamente - Redirigiendo al dashboard...', 'success');
+        showAlert('Sesión iniciada correctamente - Cargando datos...', 'success');
         
-        // Small delay to show success message
-        setTimeout(() => {
+        // Cargar datos de Firestore al hacer login
+        loadPatients().then(() => {
             showSection('dashboard');
-        }, 1000);
+        });
 
         return false;
     } catch (error) {
         console.error('Error en login:', error);
         showAlert('Error en el proceso de login', 'error');
         return false;
+    }
+}
+
+// Función para borrar todos los datos de Firestore
+async function deleteAllPatientsFromFirestore() {
+    try {
+        showAlert('Eliminando todos los datos de Firestore...', 'info');
+        const snapshot = await db.collection('patients').get();
+        const batch = db.batch();
+        
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        patients = [];
+        updateDashboard();
+        showAlert('TODOS LOS DATOS HAN SIDO ELIMINADOS DE FIRESTORE', 'success');
+    } catch (error) {
+        console.error('Error eliminando datos:', error);
+        showAlert('Error eliminando datos: ' + error.message, 'error');
     }
 }
 
@@ -1305,8 +1380,8 @@ function handleEditSubmit(event) {
     }
 }
 
-// Función para guardar cambios de identificación
-function saveIdentificationEdit(patient) {
+// Función para guardar cambios de identificación - ACTUALIZADA CON FIREBASE
+async function saveIdentificationEdit(patient) {
     try {
         patient.identification = {
             ...patient.identification,
@@ -1350,18 +1425,20 @@ function saveIdentificationEdit(patient) {
             changes: 'Información de identificación actualizada'
         });
 
-        savePatients();
-        showAlert('Información de identificación actualizada exitosamente', 'success');
+        // Actualizar en Firebase
+        await savePatient(patient);
+        
+        showAlert('Información de identificación actualizada exitosamente en la nube', 'success');
         closeEditModal();
         loadEditablePatientsList(); // Refresh the list
     } catch (error) {
         console.error('Error guardando identificación:', error);
-        showAlert('Error al guardar los cambios', 'error');
+        showAlert('Error al guardar los cambios en la nube: ' + error.message, 'error');
     }
 }
 
-// Función para guardar cambios de datos iniciales
-function saveInitialDataEdit(patient) {
+// Función para guardar cambios de datos iniciales - ACTUALIZADA CON FIREBASE
+async function saveInitialDataEdit(patient) {
     try {
         // Collect injured zones
         const injuredZones = [];
@@ -1375,7 +1452,7 @@ function saveInitialDataEdit(patient) {
         // Collect compromised tendons
         const compromisedTendons = [];
         ['FDS', 'FDP', 'FPL', 'FCU', 'FCR', 'PL'].forEach(tendon => {
-            const checkbox = document.getElementById(`editTendon${tendon.toLowerCase().charAt(0).toUpperCase() + tendon.toLowerCase().slice(1)}`);
+            const checkbox = document.getElementById(`editTendon${tendon}`);
             if (checkbox && checkbox.checked) {
                 compromisedTendons.push(tendon);
             }
@@ -1384,8 +1461,8 @@ function saveInitialDataEdit(patient) {
         // Collect associated injuries
         const associatedInjuries = [];
         ['NERVIOSO', 'ÓSEO', 'VASCULAR', 'MUSCULAR', 'LIGAMENTARIA', 'CÁPSULA ARTICULAR'].forEach(injury => {
-            const injuryKey = injury.replace('Ó', 'o').replace(' ', '').toLowerCase();
-            const checkbox = document.getElementById(`editInjury${injury.charAt(0).toUpperCase() + injuryKey.slice(1)}`);
+            const injuryKey = injury.replace('Ó', 'Oseo').replace(' ', '');
+            const checkbox = document.getElementById(`editInjury${injuryKey}`);
             if (checkbox && checkbox.checked) {
                 associatedInjuries.push(injury);
             }
@@ -1428,13 +1505,15 @@ function saveInitialDataEdit(patient) {
             changes: 'Información de datos iniciales actualizada'
         });
 
-        savePatients();
-        showAlert('Datos iniciales actualizados exitosamente', 'success');
+        // Actualizar en Firebase
+        await savePatient(patient);
+        
+        showAlert('Datos iniciales actualizados exitosamente en la nube', 'success');
         closeEditModal();
         loadEditablePatientsList(); // Refresh the list
     } catch (error) {
         console.error('Error guardando datos iniciales:', error);
-        showAlert('Error al guardar los cambios', 'error');
+        showAlert('Error al guardar los cambios en la nube: ' + error.message, 'error');
     }
 }
 
@@ -2260,7 +2339,7 @@ ${appData.fingers.map(finger => {
 
 ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
-Sistema de Evaluación - Tendones Flexores
+Sistema de Evaluación - Tendones Flexores (DATOS EN LA NUBE)
 Generado el: ${formatDateTime(new Date().toISOString())}
     `.trim();
 }
@@ -2344,8 +2423,8 @@ function updateDashboard() {
     document.getElementById('pacientesIncompletos').textContent = pacientesIncompletos;
 }
 
-// Form submission handlers
-function handleNewPatientSubmit(event) {
+// MODIFICADO: Form submission handlers con Firebase
+async function handleNewPatientSubmit(event) {
     event.preventDefault();
     console.log('Procesando nuevo paciente...');
 
@@ -2371,17 +2450,24 @@ function handleNewPatientSubmit(event) {
         changes: 'Paciente registrado'
     }];
 
-    patients.push(patientData);
-    savePatients();
-    updateDashboard();
+    try {
+        // Guardar en Firebase
+        await savePatient(patientData);
+        
+        // Agregar a la lista local
+        patients.push(patientData);
+        updateDashboard();
 
-    showAlert('Paciente registrado exitosamente', 'success');
-    document.getElementById('newPatientForm').reset();
-    initializeDateFields();
-    showSection('dashboard');
+        showAlert('Paciente registrado exitosamente en la nube', 'success');
+        document.getElementById('newPatientForm').reset();
+        initializeDateFields();
+        showSection('dashboard');
+    } catch (error) {
+        showAlert('Error al registrar paciente: ' + error.message, 'error');
+    }
 }
 
-function handleFollowUpSubmit(event) {
+async function handleFollowUpSubmit(event) {
     event.preventDefault();
     console.log('Procesando seguimiento...');
 
@@ -2438,10 +2524,15 @@ function handleFollowUpSubmit(event) {
         changes: 'Control de seguimiento procesado'
     });
 
-    savePatients();
-    updateDashboard();
-    cancelFollowUp();
-    showSection('dashboard');
+    try {
+        // Actualizar en Firebase
+        await savePatient(patient);
+        updateDashboard();
+        cancelFollowUp();
+        showSection('dashboard');
+    } catch (error) {
+        showAlert('Error al guardar control: ' + error.message, 'error');
+    }
 }
 
 function validateNewPatientForm() {
@@ -2588,11 +2679,21 @@ window.handleEditSubmit = handleEditSubmit;
 
 // Event listeners setup
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Aplicación iniciando...');
+    console.log('Aplicación iniciando con Firebase...');
     
     try {
-        // Load saved data
-        loadPatients();
+        // Verificar que Firebase esté disponible
+        if (typeof firebase === 'undefined') {
+            showAlert('Error: Firebase no está disponible. Verifique la configuración.', 'error');
+            return;
+        }
+        
+        if (typeof db === 'undefined') {
+            showAlert('Error: Firestore no está configurado. Verifique la configuración.', 'error');
+            return;
+        }
+        
+        console.log('Firebase conectado correctamente');
         
         // Initialize UI
         initializeDateFields();
@@ -2621,9 +2722,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show access screen
         showSection('accessScreen');
         
-        console.log('Aplicación inicializada correctamente');
+        console.log('Aplicación inicializada correctamente con Firebase');
     } catch (error) {
         console.error('Error inicializando aplicación:', error);
-        showAlert('Error inicializando la aplicación', 'error');
+        showAlert('Error inicializando la aplicación: ' + error.message, 'error');
     }
 });
