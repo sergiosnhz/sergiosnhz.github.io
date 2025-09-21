@@ -1697,37 +1697,64 @@ function calculateDaysToSurgery() {
     }
 }
 
-// MODIFICADO: Goniometry Grid sin columna "Déficit Ext" con diseño mejorado
+// ✅ Tabla 4x6 de Goniometría
 function generateGoniometryGrid() {
     const container = document.getElementById('goniometryMeasurements');
     if (!container) return;
 
     let html = `
-        <div class="gonio-header">Dedo</div>
-        <div class="gonio-header">MCF</div>
-        <div class="gonio-header">IFP</div>
-        <div class="gonio-header">IFD</div>
+        <table class="gonio-table">
+            <thead>
+                <tr>
+                    <th>Dedo</th>
+                    <th>MCF</th>
+                    <th>IFP</th>
+                    <th>IFD</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
 
     appData.fingers.forEach(finger => {
-        html += `<div class="gonio-label">${finger.name}</div>`;
+        html += `<tr>
+            <td>${finger.name}</td>
 
-        // MCF joint
-        const mcfInputId = `gonio${finger.number}MCF`;
-        html += `<input type="number" id="${mcfInputId}" class="gonio-input" min="0" max="180" placeholder="0" onchange="calculateTAMByFingerAndStrickland()">`;
+            <!-- MCF -->
+            <td>
+                <input type="number"
+                       id="gonio${finger.number}MCF"
+                       class="gonio-input"
+                       min="0" max="180" placeholder="0"
+                       onchange="calculateTAMByFingerAndStrickland()">
+            </td>
 
-        // IFP joint
-        const ifpInputId = `gonio${finger.number}IFP`;
-        html += `<input type="number" id="${ifpInputId}" class="gonio-input" min="0" max="180" placeholder="0" onchange="calculateTAMByFingerAndStrickland()">`;
+            <!-- IFP -->
+            <td>
+                <input type="number"
+                       id="gonio${finger.number}IFP"
+                       class="gonio-input"
+                       min="0" max="180" placeholder="0"
+                       onchange="calculateTAMByFingerAndStrickland()">
+            </td>
 
-        // IFD joint - Skip for thumb (finger 1)
+            <!-- IFD (excepto el pulgar) -->
+            <td>`;
         if (finger.number === 1) {
-            html += `<div class="gonio-label" style="background: #f0f0f0; color: #999;">N/A</div>`; // Empty cell for thumb IFD
+            html += `<div style="text-align:center; color:#999;">N/A</div>`;
         } else {
-            const ifdInputId = `gonio${finger.number}IFD`;
-            html += `<input type="number" id="${ifdInputId}" class="gonio-input" min="0" max="180" placeholder="0" onchange="calculateTAMByFingerAndStrickland()">`;
+            html += `<input type="number"
+                           id="gonio${finger.number}IFD"
+                           class="gonio-input"
+                           min="0" max="180" placeholder="0"
+                           onchange="calculateTAMByFingerAndStrickland()">`;
         }
+        html += `</td></tr>`;
     });
+
+    html += `
+            </tbody>
+        </table>
+    `;
 
     container.innerHTML = html;
 }

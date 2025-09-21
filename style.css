@@ -1597,11 +1597,10 @@ select.form-control {
     border-color: var(--color-primary);
     box-shadow: var(--focus-ring);
 }
-
-/* Goniometry Grid */
+/* Goniometry Grid - versión 4 columnas */
 .goniometry-grid {
     display: grid;
-    grid-template-columns: 100px repeat(4, 1fr);
+    grid-template-columns: 220px repeat(3, 1fr); /* 4 columnas en total */
     gap: var(--space-8);
     margin-bottom: var(--space-24);
     padding: var(--space-16);
@@ -1622,6 +1621,7 @@ select.form-control {
     font-weight: var(--font-weight-medium);
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: var(--space-6);
     font-size: var(--font-size-sm);
 }
@@ -1640,7 +1640,6 @@ select.form-control {
     border-color: var(--color-primary);
     outline: var(--focus-outline);
 }
-
 /* Calculation Results */
 .calculation-results {
     background-color: var(--color-bg-3);
@@ -1943,103 +1942,103 @@ select.form-control {
     .container {
         padding: var(--space-12);
     }
-    
+
     .access-buttons {
         flex-direction: column;
         gap: var(--space-16);
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-grid .col-span-2 {
         grid-column: span 1;
     }
-    
+
     .goniometry-grid {
         grid-template-columns: 80px repeat(4, 1fr);
         gap: var(--space-6);
         font-size: var(--font-size-xs);
     }
-    
+
     .section-header {
         flex-direction: column;
         gap: var(--space-16);
         align-items: stretch;
     }
-    
+
     .header-actions {
         justify-content: center;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     .search-form {
         flex-direction: column;
     }
-    
+
     .week-selection {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .dashboard-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .protocol-tabs {
         flex-direction: column;
     }
-    
+
     .tab-button {
         border-bottom: 1px solid var(--color-border);
         border-right: 2px solid transparent;
     }
-    
+
     .tab-button.active {
         border-right-color: var(--color-primary);
         border-bottom-color: var(--color-border);
     }
-    
+
     .quickdash-options {
         flex-direction: column;
         gap: var(--space-6);
     }
-    
+
     .timer-controls {
         flex-direction: column;
         gap: var(--space-8);
     }
-    
+
     .postop-timeline {
         padding-left: var(--space-24);
     }
-    
+
     .postop-timeline::before {
         left: 12px;
     }
-    
+
     .postop-item::before {
         left: -6px;
         width: 12px;
         height: 12px;
     }
-    
+
     .tam-by-finger-results {
         grid-template-columns: 1fr;
     }
-    
+
     .clinical-data-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .breadcrumb {
         flex-wrap: wrap;
     }
@@ -2050,37 +2049,37 @@ select.form-control {
         grid-template-columns: 60px repeat(3, 1fr);
         font-size: var(--font-size-xs);
     }
-    
+
     .gonio-header:last-child {
         display: none;
     }
-    
+
     .gonio-input:nth-child(5n) {
         display: none;
     }
-    
+
     .exercise-details {
         grid-template-columns: 1fr;
     }
-    
+
     .timer-circle {
         width: 120px;
         height: 120px;
     }
-    
+
     .timer-text {
         font-size: var(--font-size-2xl);
     }
-    
+
     .week-selection .form-control {
         min-width: auto;
         width: 100%;
     }
-    
+
     .clinical-history-details {
         grid-template-columns: 1fr;
     }
-    
+
     .clinical-history-header {
         flex-direction: column;
         align-items: stretch;
@@ -2093,20 +2092,20 @@ select.form-control {
     .btn, .section-header button, .form-actions, .header-actions {
         display: none;
     }
-    
+
     .section {
         display: block !important;
     }
-    
+
     .card {
         break-inside: avoid;
         margin-bottom: var(--space-16);
     }
-    
+
     .timeline-item {
         break-inside: avoid;
     }
-    
+
     .access-screen, .login-container, .doctor-info {
         display: none;
     }
